@@ -61,7 +61,7 @@ public class User {
 		return id;
 	}
 
-	private void update(String name, String pwd) throws ClassNotFoundException, SQLException {
+	protected void update(String name, String pwd) throws ClassNotFoundException, SQLException {
 			Connection conn = loadDB();
 			PreparedStatement stmt = null;
 			if (pwd == null) {
@@ -161,6 +161,10 @@ public class User {
 		}
 		return u;
 
+	}
+
+	public boolean isAdmin() {
+		return admin;
 	}
 	
 }
