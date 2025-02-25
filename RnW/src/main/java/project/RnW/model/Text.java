@@ -54,11 +54,12 @@ public class Text {
 		int id = -1;
 		try{
 			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO texts (title, introduction, corpus, conclusion) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO texts (title, userId, introduction, corpus, conclusion) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			pst.setString(1, text.title);
-			pst.setString(2, text.intro);
-			pst.setString(3, text.corpus);
-			pst.setString(4, text.conclusion);
+			pst.setInt(2, text.author.getId());
+			pst.setString(3, text.intro);
+			pst.setString(4, text.corpus);
+			pst.setString(5, text.conclusion);
 			pst.executeUpdate();
 			ResultSet rs = pst.getGeneratedKeys();
 			if(rs.next()) {
