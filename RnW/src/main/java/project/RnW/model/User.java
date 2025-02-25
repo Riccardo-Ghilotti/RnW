@@ -1,5 +1,6 @@
 package project.RnW.model;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ResourceBundle;
+
+import com.google.common.hash.Hashing;
 
 import java.sql.Statement;
 public class User {
@@ -17,6 +20,7 @@ public class User {
 	private boolean admin;
 	
 	public User(String name, String pwd, boolean admin) {
+		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
 		int id_temp = insert(name, pwd, admin);
 		if(id_temp > -1) {
 			this.id=id_temp;
@@ -153,13 +157,14 @@ public class User {
 		}
 	}
 	
-	/*public void changePassword(String pwd) {
+	public void changePassword(String pwd) {
+    	pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
 		try {
 			update(null, pwd);
 		}catch(Exception e) {
 			System.out.println("ERROR: e");//TODO: fix exception
 		}
-	}*/
+	}
 	
 }
 
