@@ -36,6 +36,80 @@ public class User {
 	}
 
 
+	private static Connection loadDB() throws ClassNotFoundException, SQLException {
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
+		return conn;
+	}
+
+	private int insert(String name, String pwd, boolean admin) {
+		int id = -1;
+		try{
+			Connection conn = loadDB();
+			PreparedStatement pst = conn.prepareStatement("INSERT INTO users (NAME, PW, ADMINISTRATOR) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			pst.setString(1, name);
+			pst.setString(2, pwd);
+			pst.setBoolean(3, admin);
+			pst.executeUpdate();
+			ResultSet rs = pst.getGeneratedKeys();
+			if(rs.next()) {
+				id = rs.getInt(1);
+			}
+		}catch(Exception ex) {
+			System.out.println("ERROR " + ex.toString()); //TODO: fix exception
+		}
+		return id;
+	}
+
+	private void update(String name, String pwd) throws ClassNotFoundException, SQLException {
+			Connection conn = loadDB();
+			PreparedStatement stmt = null;
+			if (pwd == null) {
+				stmt = conn.prepareStatement("UPDATE users SET name = (?) WHERE id = (?);");
+		    	stmt.setString(1, name);
+			    stmt.setInt(2, this.id);
+			    this.name = name;
+			    }
+		    else {
+		    	stmt = conn.prepareStatement("UPDATE users SET pw = (?) WHERE id = (?);");
+		    	stmt.setString(1, pwd);
+			    stmt.setInt(2, this.id);
+			    }
+			stmt.executeUpdate();
+	}
+
+	public void delete() {
+		try {
+			Connection conn = loadDB();
+			PreparedStatement pst = conn.prepareStatement("DELETE FROM users WHERE name=(?);");
+			pst.setString(1, this.name);
+			pst.execute();
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void changeName(String name) {
+		try {
+			update(name, null);
+		}catch(SQLIntegrityConstraintViolationException e) {
+			System.out.println("ERROR: name already taken");//TODO: print to view
+		}catch(Exception e) {
+			System.out.println("ERROR: " + e);//TODO: fix exception
+		}
+	}
+
+	public void changePassword(String pwd) {
+		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
+		try {
+			update(null, pwd);
+		}catch(Exception e) {
+			System.out.println("ERROR: e");//TODO: fix exception
+		}
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -87,83 +161,6 @@ public class User {
 		}
 		return u;
 
-	}
-
-
-	
-	private static Connection loadDB() throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
-		return conn;
-	}
-	
-	private int insert(String name, String pwd, boolean admin) {
-		int id = -1;
-		try{
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO users (NAME, PW, ADMINISTRATOR) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
-			pst.setString(1, name);
-			pst.setString(2, pwd);
-			pst.setBoolean(3, admin);
-			pst.executeUpdate();
-			ResultSet rs = pst.getGeneratedKeys();
-			if(rs.next()) {
-				id = rs.getInt(1);
-			}
-		}catch(Exception ex) {
-			System.out.println("ERROR " + ex.toString()); //TODO: fix exception
-		}
-		return id;
-	}
-	
-	private void update(String name, String pwd) throws ClassNotFoundException, SQLException {
-			Connection conn = loadDB();
-			PreparedStatement stmt = null;
-			if (pwd == null) {
-				stmt = conn.prepareStatement("UPDATE users SET name = (?) WHERE id = (?);");
-		    	stmt.setString(1, name);
-			    stmt.setInt(2, this.id);
-			    this.name = name;
-			    }
-		    else {
-		    	stmt = conn.prepareStatement("UPDATE users SET pw = (?) WHERE id = (?);");
-		    	stmt.setString(1, pwd);
-			    stmt.setInt(2, this.id);
-			    }
-			stmt.executeUpdate();
-	}
-	
-	public void delete() {
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("DELETE FROM users WHERE name=(?);");
-			pst.setString(1, this.name);
-			pst.execute();
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
-	public void changeName(String name) {
-		try {
-			update(name, null);
-		}catch(SQLIntegrityConstraintViolationException e) {
-			System.out.println("ERROR: name already taken");//TODO: print to view
-		}catch(Exception e) {
-			System.out.println("ERROR: " + e);//TODO: fix exception
-		}
-	}
-	
-	public void changePassword(String pwd) {
-    	pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
-		try {
-			update(null, pwd);
-		}catch(Exception e) {
-			System.out.println("ERROR: e");//TODO: fix exception
-		}
 	}
 	
 }
