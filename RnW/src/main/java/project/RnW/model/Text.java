@@ -28,7 +28,7 @@ public class Text {
 		this.conclusion = conclusion;
 		this.author = author;
 		
-		this.id = insert(this);
+		this.id = this.insert();
 	}
 	
 	public Text(int id, String title, ArrayList<String> intro, ArrayList<String> corpus, ArrayList<String> conclusion, User author) {
@@ -39,7 +39,7 @@ public class Text {
 		this.conclusion = compose(conclusion);
 		this.author = author;
 		
-		this.id = insert(this);
+		this.id = this.insert();
 		
 	}
 	
@@ -50,16 +50,16 @@ public class Text {
 	}
 
 
-	private int insert(Text text) {
+	private int insert() {
 		int id = -1;
 		try{
 			Connection conn = loadDB();
 			PreparedStatement pst = conn.prepareStatement("INSERT INTO texts (title, userId, introduction, corpus, conclusion) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-			pst.setString(1, text.title);
-			pst.setInt(2, text.author.getId());
-			pst.setString(3, text.intro);
-			pst.setString(4, text.corpus);
-			pst.setString(5, text.conclusion);
+			pst.setString(1, title);
+			pst.setInt(2, author.getId());
+			pst.setString(3, intro);
+			pst.setString(4, corpus);
+			pst.setString(5, conclusion);
 			pst.executeUpdate();
 			ResultSet rs = pst.getGeneratedKeys();
 			if(rs.next()) {

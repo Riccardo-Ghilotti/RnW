@@ -14,7 +14,7 @@ import com.google.common.hash.Hashing;
 import java.sql.Statement;
 public class User {
 	
-	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");;
+	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
 	private int id;
 	private String name;
 	private boolean admin;
