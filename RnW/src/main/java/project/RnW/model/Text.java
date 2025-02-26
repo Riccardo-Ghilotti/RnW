@@ -72,7 +72,7 @@ public class Text {
 	}
 	
 	
-	public String compose(ArrayList<String> sections) {
+	public static String compose(ArrayList<String> sections) {
 		String macroSecotion = String.join("|", sections);
 		return macroSecotion;
 	}
@@ -81,6 +81,7 @@ public class Text {
 	public void changeIntro(String intro, User u) throws AccessDeniedException {
 		if(u.equals(author)) {
 			update(this.id, intro, this.corpus, this.conclusion);
+			this.intro = intro;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -91,6 +92,7 @@ public class Text {
 		if(u.equals(author)) {
 			String introTmp = String.join("|", intro);
 			update(this.id, introTmp, this.corpus, this.conclusion);
+			this.intro = introTmp;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -99,6 +101,7 @@ public class Text {
 	public void changeCorpus(String corpus, User u) throws AccessDeniedException {
 		if(u.equals(author)) {	
 			update(this.id, this.intro, corpus, this.conclusion);
+			this.corpus = corpus;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -108,6 +111,7 @@ public class Text {
 		if(u.equals(author)) {	
 			String corpusTmp = String.join("|", corpus);
 			update(this.id, this.intro, corpusTmp, this.conclusion);
+			this.corpus = corpusTmp;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -116,6 +120,7 @@ public class Text {
 	public void changeConclusion(String conclusion, User u) throws AccessDeniedException {
 		if(u.equals(author)) {	
 			update(this.id, this.intro, this.corpus, conclusion);
+			this.conclusion = conclusion;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -125,6 +130,7 @@ public class Text {
 		if(u.equals(author)) {
 			String concTmp = String.join("|", conclusion);
 			update(this.id, this.intro, this.corpus, concTmp);
+			this.conclusion = concTmp;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -135,16 +141,14 @@ public class Text {
 		try {
 			Connection conn = loadDB();
 			PreparedStatement stmt = null;
-			stmt = conn.prepareStatement("UPDATE users SET title = (?), introduction=(?), corpus = (?), conclusion = (?) WHERE id = (?);");
-			stmt.setString(1, title);
-			stmt.setString(2, intro);
-			stmt.setString(3, corpus);
-			stmt.setString(4, conclusion);
-			stmt.setInt(5, this.id);
+			stmt = conn.prepareStatement("UPDATE texts SET introduction=(?), corpus = (?), conclusion = (?) WHERE id = (?);");
+			stmt.setString(1, intro);
+			stmt.setString(2, corpus);
+			stmt.setString(3, conclusion);
+			stmt.setInt(4, this.id);
 			stmt.executeUpdate();
 		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("ERROR " + e.toString());
 		}
 	}
 	
@@ -156,8 +160,7 @@ public class Text {
 				pst.setInt(1, this.id);
 				pst.execute();
 			} catch (ClassNotFoundException | SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("ERROR " + e.toString());
 			}
 		else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
@@ -185,6 +188,18 @@ public class Text {
 		return title;
 	}
 	
+	public String getIntro() {
+		return intro;
+	}
+
+	public String getCorpus() {
+		return corpus;
+	}
+
+	public String getConclusion() {
+		return conclusion;
+	}
+
 	public boolean Equals(Text t) {
 		if(t.getId() == this.getId())
 			return true;
