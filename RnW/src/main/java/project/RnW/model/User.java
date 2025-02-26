@@ -167,5 +167,12 @@ public class User {
 		return admin;
 	}
 	
+	public boolean Equals(User u) {
+		if(u.getId() == this.getId()) 
+			return true;
+		return false;
+	}
+	
+	
 }
 

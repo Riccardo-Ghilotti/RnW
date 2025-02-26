@@ -21,7 +21,7 @@ public class Text {
 	private User author;
 	
 	
-	public Text(int id, String title, String intro, String corpus, String conclusion, User author) {
+	public Text(String title, String intro, String corpus, String conclusion, User author) {
 		this.title = title;
 		this.intro = intro;
 		this.corpus = corpus;
@@ -31,8 +31,7 @@ public class Text {
 		this.id = this.insert();
 	}
 	
-	public Text(int id, String title, ArrayList<String> intro, ArrayList<String> corpus, ArrayList<String> conclusion, User author) {
-		this.id = id;
+	public Text(String title, ArrayList<String> intro, ArrayList<String> corpus, ArrayList<String> conclusion, User author) {
 		this.title = title;
 		this.intro = compose(intro);
 		this.corpus = compose(corpus);
@@ -184,5 +183,11 @@ public class Text {
 
 	public String getTitle() {
 		return title;
+	}
+	
+	public boolean Equals(Text t) {
+		if(t.getId() == this.getId())
+			return true;
+		return false;
 	}
 }
