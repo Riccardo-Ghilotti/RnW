@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ResourceBundle;
 
@@ -14,14 +13,14 @@ import org.junit.jupiter.api.Test;
 public class UserTest {
 	
 	@Test
-	public void TestUser() {
+	public void testUser() {
 		User u = new User("Elvis", "ThisIsATest", false);
 		assertEquals("Elvis",u.getName());
 		u.delete();
 	}
 	
 	@Test
-	public void TestDelete() {
+	public void testDelete() {
 		User u = new User("Elvis", "ThisIsATest", false);
 		u.delete();
 		ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
@@ -38,7 +37,7 @@ public class UserTest {
 	}
 	
 	@Test
-	public void TestChangeName() {
+	public void testChangeName() {
 		User u = new User("Elvis", "ThisIsATest", false);
 		u.changeName("Paul");
 		assertEquals("Paul", u.getName());
@@ -46,7 +45,7 @@ public class UserTest {
 	}
 	
 	@Test
-	public void TestGetUser() {
+	public void testGetUser() {
 		User u = new User("Elvis", "ThisIsATest", false);
 		assertEquals("Elvis", User.getUser("Elvis").getName());
 		int id = u.getId();
