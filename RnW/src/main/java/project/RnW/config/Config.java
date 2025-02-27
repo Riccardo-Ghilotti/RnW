@@ -13,13 +13,13 @@ public class Config extends AbstractAnnotationConfigDispatcherServletInitializer
 	@Override
 	protected Class<?>[] getServletConfigClasses() {
 		// TODO Auto-generated method stub
-		return null;
+		return new Class<?>[] {WebViewConfig.class};
 	}
 
 	@Override
 	protected String[] getServletMappings() {
 		// TODO Auto-generated method stub
-		return null;
+		return new String [] {"/"};
 	}
 	
 }
