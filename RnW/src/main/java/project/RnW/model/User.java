@@ -20,7 +20,6 @@ public class User {
 	private boolean admin;
 	
 	public User(String name, String pwd, boolean admin) {
-		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
 		int id_temp = insert(name, pwd, admin);
 		if(id_temp > -1) {
 			this.id=id_temp;
@@ -42,7 +41,8 @@ public class User {
 		return conn;
 	}
 
-	private int insert(String name, String pwd, boolean admin) {
+	public static int insert(String name, String pwd, boolean admin) {
+		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
 		int id = -1;
 		try{
 			Connection conn = loadDB();
@@ -170,6 +170,26 @@ public class User {
 	public boolean Equals(User u) {
 		if(u.getId() == this.getId()) 
 			return true;
+		return false;
+	}
+	
+	public static boolean login(String name, String password) {
+		try {
+			Connection conn = loadDB();
+			PreparedStatement pst = conn.prepareStatement("SELECT pw FROM users WHERE name=(?)");
+			pst.setString(1, name);
+			ResultSet rs = pst.executeQuery();
+			if(rs.next()) {
+				if(rs.getString("password").equals(password))
+					return true;
+				}
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
 	
