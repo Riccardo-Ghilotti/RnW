@@ -244,4 +244,25 @@ public class TextTest {
 	}
 	
 	
+	@Test
+	public void testGetAllTextsFromAuthor() {
+		User u = new User("Elvis","Test", false);
+		Text t = new Text("text1","t","t","t", u);
+		Text t1 = new Text("text2","t","t","t", u);
+		Text t2 = new Text("text3","t","t","t", u);
+		ArrayList<String> textNames = Text.getAllTextsFromAuthor(u);
+		assertEquals(t.getTitle(), textNames.get(0));
+		assertEquals(t1.getTitle(), textNames.get(1));
+		assertEquals(t2.getTitle(), textNames.get(2));
+		u.delete();
+		try {
+			t.delete(u);
+			t1.delete(u);
+			t2.delete(u);
+		} catch (AccessDeniedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

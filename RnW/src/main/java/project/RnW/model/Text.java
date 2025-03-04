@@ -42,6 +42,17 @@ public class Text {
 		
 	}
 	
+
+	
+	public Text(int id, String title, String intro, String corpus, String conclusion, User author) {
+		this.id = id;
+		this.title = title;
+		this.intro = intro;
+		this.corpus = corpus;
+		this.conclusion = conclusion;
+		this.author = author;
+	}
+
 	private static Connection loadDB() throws ClassNotFoundException, SQLException {
 		Class.forName("com.mysql.cj.jdbc.Driver");
 		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
@@ -77,6 +88,22 @@ public class Text {
 		return macroSecotion;
 	}
 	
+	
+	public static ArrayList<String> getAllTextsFromAuthor(User u) {
+		ArrayList<String> texts = new ArrayList<String>();
+		try {
+			Connection conn = loadDB();
+			PreparedStatement pst = conn.prepareStatement("SELECT title FROM texts WHERE userId = (?)");
+			pst.setInt(1, u.getId());
+			ResultSet rs = pst.executeQuery();
+			while(rs.next()) {
+				texts.add(rs.getString(1));
+			}
+		}catch(Exception ex) {
+			System.out.println("ERROR" + ex.toString());
+		}
+		return texts;
+	}
 	
 	public void changeIntro(String intro, User u) throws AccessDeniedException {
 		if(u.equals(author)) {
@@ -167,7 +194,7 @@ public class Text {
 		}
 	}
 	
-	public ArrayList<String> reconstructText(String text) {
+	public ArrayList<String> decompose(String text) {
 		String[] textTmp = text.split("|");
 		ArrayList<String> txt = new ArrayList<String>();
 		for(String s : textTmp){
