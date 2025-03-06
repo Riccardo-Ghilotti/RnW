@@ -21,7 +21,8 @@ public class Text {
 	private User author;
 	
 	
-	public Text(String title, String intro, String corpus, String conclusion, User author) {
+	public Text(String title, String intro, String corpus, String conclusion, 
+			User author) {
 		this.title = title;
 		this.intro = intro;
 		this.corpus = corpus;
@@ -31,7 +32,8 @@ public class Text {
 		this.id = this.insert();
 	}
 	
-	public Text(String title, ArrayList<String> intro, ArrayList<String> corpus, ArrayList<String> conclusion, User author) {
+	public Text(String title, ArrayList<String> intro, ArrayList<String> corpus,
+			ArrayList<String> conclusion, User author) {
 		this.title = title;
 		this.intro = compose(intro);
 		this.corpus = compose(corpus);
@@ -44,7 +46,8 @@ public class Text {
 	
 
 	
-	public Text(int id, String title, String intro, String corpus, String conclusion, User author) {
+	public Text(int id, String title, String intro, String corpus,
+			String conclusion, User author) {
 		this.id = id;
 		this.title = title;
 		this.intro = intro;
@@ -53,9 +56,11 @@ public class Text {
 		this.author = author;
 	}
 
-	private static Connection loadDB() throws ClassNotFoundException, SQLException {
+	private static Connection loadDB() throws ClassNotFoundException, 
+	SQLException {
 		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
+		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), 
+				dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
 		return conn;
 	}
 
@@ -64,7 +69,10 @@ public class Text {
 		int id = -1;
 		try{
 			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO texts (title, userId, introduction, corpus, conclusion) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement pst = conn.prepareStatement(
+					"INSERT INTO texts "
+					+ "(title, userId, introduction, corpus, conclusion)"
+					+ " VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			pst.setString(1, title);
 			pst.setInt(2, author.getId());
 			pst.setString(3, intro);
@@ -93,7 +101,9 @@ public class Text {
 		ArrayList<String> texts = new ArrayList<String>();
 		try {
 			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("SELECT title FROM texts WHERE userId = (?)");
+			PreparedStatement pst = conn.prepareStatement(
+					"SELECT title FROM texts WHERE userId = (?)"
+					);
 			pst.setInt(1, u.getId());
 			ResultSet rs = pst.executeQuery();
 			while(rs.next()) {
@@ -115,7 +125,8 @@ public class Text {
 			
 	}
 	
-	public void changeIntro(ArrayList<String> intro, User u) throws AccessDeniedException {
+	public void changeIntro(ArrayList<String> intro, User u) 
+			throws AccessDeniedException {
 		if(u.equals(author)) {
 			String introTmp = String.join("|", intro);
 			update(this.id, introTmp, this.corpus, this.conclusion);
@@ -134,7 +145,8 @@ public class Text {
 		}
 	}
 	
-	public void changeCorpus(ArrayList<String> corpus, User u) throws AccessDeniedException {
+	public void changeCorpus(ArrayList<String> corpus, User u) 
+			throws AccessDeniedException {
 		if(u.equals(author)) {	
 			String corpusTmp = String.join("|", corpus);
 			update(this.id, this.intro, corpusTmp, this.conclusion);
@@ -144,7 +156,8 @@ public class Text {
 		}
 	}
 
-	public void changeConclusion(String conclusion, User u) throws AccessDeniedException {
+	public void changeConclusion(String conclusion, User u) 
+			throws AccessDeniedException {
 		if(u.equals(author)) {	
 			update(this.id, this.intro, this.corpus, conclusion);
 			this.conclusion = conclusion;
@@ -153,7 +166,8 @@ public class Text {
 		}
 	}
 	
-	public void changeConclusion(ArrayList<String> conclusion, User u) throws AccessDeniedException {
+	public void changeConclusion(ArrayList<String> conclusion, User u) 
+			throws AccessDeniedException {
 		if(u.equals(author)) {
 			String concTmp = String.join("|", conclusion);
 			update(this.id, this.intro, this.corpus, concTmp);
@@ -168,7 +182,10 @@ public class Text {
 		try {
 			Connection conn = loadDB();
 			PreparedStatement stmt = null;
-			stmt = conn.prepareStatement("UPDATE texts SET introduction=(?), corpus = (?), conclusion = (?) WHERE id = (?);");
+			stmt = conn.prepareStatement(
+					"UPDATE texts "
+					+ "SET introduction=(?), corpus = (?), conclusion = (?) "
+					+ "WHERE id = (?);");
 			stmt.setString(1, intro);
 			stmt.setString(2, corpus);
 			stmt.setString(3, conclusion);
@@ -183,7 +200,8 @@ public class Text {
 		if(u.equals(author) || u.isAdmin())	
 			try {
 				Connection conn = loadDB();
-				PreparedStatement pst = conn.prepareStatement("DELETE FROM texts WHERE id=(?);");
+				PreparedStatement pst = conn.prepareStatement(
+						"DELETE FROM texts WHERE id=(?);");
 				pst.setInt(1, this.id);
 				pst.execute();
 			} catch (ClassNotFoundException | SQLException e) {
