@@ -21,8 +21,8 @@
 <script>
 
 	var formLogin = document.getElementById("loginForm");
-	if("${ERROR}" != "")
-		alert("${ERROR}")
+	if(${ERROR} != "")
+		alert(${ERROR})
 	function registerView(){
 		formLogin.setAttribute("action","register");
 		let t = document.createElement("input");
