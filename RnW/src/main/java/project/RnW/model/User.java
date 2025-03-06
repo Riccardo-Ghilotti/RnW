@@ -180,7 +180,7 @@ public class User {
 			pst.setString(1, name);
 			ResultSet rs = pst.executeQuery();
 			if(rs.next()) {
-				if(rs.getString("password").equals(password))
+				if(rs.getString("pw").equals(password))
 					return true;
 				}
 			} catch (ClassNotFoundException e) {
