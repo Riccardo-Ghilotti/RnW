@@ -1,9 +1,13 @@
 package project.RnW.controller;
 
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.google.common.hash.Hashing;
 
 import project.RnW.model.Text;
 import project.RnW.model.User;
@@ -27,6 +31,12 @@ public class userController {
 			else {
 				mv = new ModelAndView("profile");
 				mv.addObject("NAME", name);
+				if(!Text.getAllTextsFromAuthor(User.getUser(name)).isEmpty())
+					mv.addObject("TEXTS", Text.getAllTextsFromAuthor(
+							User.getUser(name)));
+				else
+					mv.addObject("TEXTS", 
+							"Non hai ancora scritto nessun testo");
 			}
 		}
 		else {
@@ -46,6 +56,7 @@ public class userController {
 	@RequestMapping("/user")
 	public ModelAndView login(@RequestParam("username") String name,
 			@RequestParam("password") String pw) {
+		pw = Hashing.sha256().hashString(pw, StandardCharsets.UTF_8).toString();
 		if(User.login(name, pw)) {
 			ModelAndView mv = new ModelAndView("profile");
 			mv.addObject("NAME", name);
@@ -58,7 +69,7 @@ public class userController {
 			return mv;
 			}
 		ModelAndView mv = new ModelAndView("login");
-		mv.addObject("ERROR", "'Errore, credenziali sbagliate'");
+		mv.addObject("ERROR", "Errore, credenziali sbagliate");
 		return mv;
 		}
 	
