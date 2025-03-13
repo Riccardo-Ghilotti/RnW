@@ -250,10 +250,10 @@ public class TextTest {
 		Text t = new Text("text1","t","t","t", u);
 		Text t1 = new Text("text2","t","t","t", u);
 		Text t2 = new Text("text3","t","t","t", u);
-		ArrayList<String> textNames = Text.getAllTextsFromAuthor(u);
-		assertEquals(t.getTitle(), textNames.get(0));
-		assertEquals(t1.getTitle(), textNames.get(1));
-		assertEquals(t2.getTitle(), textNames.get(2));
+		ArrayList<String[]> textNames = Text.getAllTextsFromAuthor(u);
+		assertEquals(t.getTitle(), textNames.get(0)[1]);
+		assertEquals(t1.getTitle(), textNames.get(1)[1]);
+		assertEquals(t2.getTitle(), textNames.get(2)[1]);
 		u.delete();
 		try {
 			t.delete(u);
