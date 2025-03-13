@@ -13,7 +13,6 @@ import project.RnW.model.Text;
 import project.RnW.model.User;
 
 @Controller
-
 public class userController {
 	
 	@RequestMapping("/register")
@@ -36,7 +35,7 @@ public class userController {
 							User.getUser(name)));
 				else
 					mv.addObject("TEXTS", 
-							"Non hai ancora scritto nessun testo");
+							"'Non hai ancora scritto nessun testo'");
 			}
 		}
 		else {
@@ -54,8 +53,8 @@ public class userController {
 	}
 
 	@RequestMapping("/user")
-	public ModelAndView login(@RequestParam("username") String name,
-			@RequestParam("password") String pw) {
+	public ModelAndView login(@RequestParam(value = "username", required = true) String name,
+			@RequestParam(value = "password", required = true) String pw) {
 		pw = Hashing.sha256().hashString(pw, StandardCharsets.UTF_8).toString();
 		if(User.login(name, pw)) {
 			ModelAndView mv = new ModelAndView("profile");
@@ -72,6 +71,4 @@ public class userController {
 		mv.addObject("ERROR", "Errore, credenziali sbagliate");
 		return mv;
 		}
-	
-	
 }
