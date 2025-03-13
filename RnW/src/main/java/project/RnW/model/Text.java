@@ -46,13 +46,13 @@ public class Text {
 	
 
 	
-	public Text(int id, String title, String intro, String corpus,
-			String conclusion, User author) {
+	public Text(int id, String title, ArrayList<String> intro, 
+			ArrayList<String> corpus, ArrayList<String> conclusion, User author) {
 		this.id = id;
 		this.title = title;
-		this.intro = intro;
-		this.corpus = corpus;
-		this.conclusion = conclusion;
+		this.intro = compose(intro);
+		this.corpus = compose(corpus);
+		this.conclusion = compose(conclusion);
 		this.author = author;
 	}
 
@@ -97,17 +97,18 @@ public class Text {
 	}
 	
 	
-	public static ArrayList<String> getAllTextsFromAuthor(User u) {
-		ArrayList<String> texts = new ArrayList<String>();
+	public static ArrayList<String[]> getAllTextsFromAuthor(User u) {
+		ArrayList<String[]> texts = new ArrayList<String[]>();
 		try {
 			Connection conn = loadDB();
 			PreparedStatement pst = conn.prepareStatement(
-					"SELECT title FROM texts WHERE userId = (?)"
+					"SELECT id, title FROM texts WHERE userId = (?)"
 					);
 			pst.setInt(1, u.getId());
 			ResultSet rs = pst.executeQuery();
 			while(rs.next()) {
-				texts.add(rs.getString(1));
+				String[] s = {String.valueOf(rs.getInt(1)), rs.getString(1)};
+				texts.add(s);
 			}
 		}catch(Exception ex) {
 			System.out.println("ERROR" + ex.toString());
