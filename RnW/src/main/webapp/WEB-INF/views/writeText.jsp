@@ -13,8 +13,8 @@
 		<input type="text" id="title" value="${TITLE}"><br>
 		<div id="writeBox"></div>
 		<button onclick="saveText()">Salva!</button>
+		<button id="prevButton" onclick="previousArea()" disabled> Vai alla macro-sezione precedente </button>
 		<button id="nextButton" onclick="nextArea()">Vai alla prossima macro-sezione</button>
-		<button id="prevButton" onclick="previousArea()"> Vai alla macro-sezione precedente </button>
 		<button id="createSection" onclick="createSection()">Crea una nuova sezione</button>
 	</div>
 	
@@ -28,11 +28,14 @@
 	
 	
 	function textToVariable(){
-		x = document.getElementsByClassName("currentBox");
-		x = [x].map(x => x.values);
-		if(x.length == 1)
-			x = x[0];
-		return x;
+		objects = document.getElementsByClassName("currentBox");
+		console.log(objects);
+		y = [];
+		for(let i = 0; i < objects.length; i+=0){
+			y.push(objects[i].value);
+			objects[i].parentNode.removeChild(objects[i]);
+		}
+		return y;
 	}
 	
 	function fillArea(area){
@@ -51,7 +54,8 @@
 		}
 		
 		let elements = document.getElementsByClassName("currentBox");
-		if(value == "" && elements.length === 0){
+		console.log(value)
+		if(value == "" && elements.length == 0){
 			var box = document.createElement("textarea");
 			box.setAttribute("class", "currentBox");
 			writeBox.appendChild(box);
@@ -59,7 +63,7 @@
 		else {
 			for(section in value){
 				var box = document.createElement("textarea");
-				box.setAttribute("value", section);
+				box.value = value[section];
 				box.setAttribute("class", "currentBox");
 				writeBox.appendChild(box);
 			}
@@ -67,8 +71,6 @@
 	}
 	
 	function nextArea(){
-		console.log(currentArea);
-		console.log(intro);
 		switch(currentArea){
 		case "intro":
 			intro = textToVariable();
@@ -87,7 +89,6 @@
 	}
 	
 	function previousArea(){
-		console.log(currentArea);
 		switch(currentArea){	
 		case "conc":
 			conc = textToVariable();
@@ -108,6 +109,7 @@
 	
 	function createSection(){
 		var box = document.createElement("textarea");
+		box.setAttribute("class", "currentBox");
 		document.getElementById("writeBox").appendChild(box);
 	}
 	
