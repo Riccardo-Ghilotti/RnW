@@ -21,17 +21,6 @@ public class Text {
 	private User author;
 	
 	
-	public Text(String title, String intro, String corpus, String conclusion, 
-			User author) {
-		this.title = title;
-		this.intro = intro;
-		this.corpus = corpus;
-		this.conclusion = conclusion;
-		this.author = author;
-		
-		this.id = this.insert();
-	}
-	
 	public Text(String title, ArrayList<String> intro, ArrayList<String> corpus,
 			ArrayList<String> conclusion, User author) {
 		this.title = title;
@@ -54,6 +43,29 @@ public class Text {
 		this.corpus = compose(corpus);
 		this.conclusion = compose(conclusion);
 		this.author = author;
+	}
+	
+	public Text(int id) {
+		this.id = id;
+		try {
+			Connection conn = loadDB();
+			PreparedStatement pst = conn.prepareStatement(
+					"SELECT * FROM texts WHERE id = (?)"
+					);
+			pst.setInt(1, id);
+			ResultSet rs = pst.executeQuery();
+			if(rs.next()) {
+				this.title = rs.getString("title");
+				this.author = User.getUser(rs.getInt("userId"));
+				this.intro = rs.getString("introduction");
+				this.corpus = rs.getString("corpus");
+				this.conclusion = rs.getString("conclusion");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	private static Connection loadDB() throws ClassNotFoundException, 
@@ -118,31 +130,12 @@ public class Text {
 		return texts;
 	}
 	
-	public void changeIntro(String intro, User u) throws AccessDeniedException {
-		if(u.equals(author)) {
-			update(this.id, intro, this.corpus, this.conclusion);
-			this.intro = intro;
-		}else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-			
-	}
-	
 	public void changeIntro(ArrayList<String> intro, User u) 
 			throws AccessDeniedException {
 		if(u.equals(author)) {
-			String introTmp = String.join("|", intro);
+			String introTmp = compose(intro);
 			update(this.id, introTmp, this.corpus, this.conclusion);
 			this.intro = introTmp;
-		}else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-	}
-	
-	public void changeCorpus(String corpus, User u) throws AccessDeniedException {
-		if(u.equals(author)) {	
-			update(this.id, this.intro, corpus, this.conclusion);
-			this.corpus = corpus;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -151,19 +144,9 @@ public class Text {
 	public void changeCorpus(ArrayList<String> corpus, User u) 
 			throws AccessDeniedException {
 		if(u.equals(author)) {	
-			String corpusTmp = String.join("|", corpus);
+			String corpusTmp = compose(corpus);
 			update(this.id, this.intro, corpusTmp, this.conclusion);
 			this.corpus = corpusTmp;
-		}else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-	}
-
-	public void changeConclusion(String conclusion, User u) 
-			throws AccessDeniedException {
-		if(u.equals(author)) {	
-			update(this.id, this.intro, this.corpus, conclusion);
-			this.conclusion = conclusion;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -172,7 +155,7 @@ public class Text {
 	public void changeConclusion(ArrayList<String> conclusion, User u) 
 			throws AccessDeniedException {
 		if(u.equals(author)) {
-			String concTmp = String.join("|", conclusion);
+			String concTmp = compose(conclusion);
 			update(this.id, this.intro, this.corpus, concTmp);
 			this.conclusion = concTmp;
 		}else {
@@ -236,16 +219,16 @@ public class Text {
 		return title;
 	}
 	
-	public String getIntro() {
-		return intro;
+	public ArrayList<String> getIntro() {
+		return decompose(intro);
 	}
 
-	public String getCorpus() {
-		return corpus;
+	public ArrayList<String> getCorpus() {
+		return decompose(corpus);
 	}
 
-	public String getConclusion() {
-		return conclusion;
+	public ArrayList<String> getConclusion() {
+		return decompose(conclusion);
 	}
 
 	public boolean Equals(Text t) {
