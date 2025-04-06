@@ -14,6 +14,7 @@
 </body>
 	
 	<form action="writeText" method="POST">
+	<input type="text" value="${NAME}" name="username" hidden="true">
 	<input type="submit" value="Scrivi un Testo">
 	</form>
 	
@@ -21,21 +22,21 @@
 	
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-<script>	
-	var texts = ${TEXTS};
+<script>
+	var texts = '${TEXTS}';
 	
 	window.onload = function(){
 		var box = document.createElement("p");
 		document.body.appendChild(box);
 		box.setAttribute("id","textbox");
-		if(typeof texts === "string"){
+		if(typeof texts == "Non hai ancora scritto nessun testo"){
 			box.innerHTML = texts;
 			}
 		else {
-			for(text in texts){
-				var titleButton = document.createElement("a");
-				titleButton.setAttribute("href", "/RnW/text?id=" + text[0]);
-				titleButton.setAttribute("value", text[1]);
+			for(let i = 0; i < texts.length; i++){
+				var titleButton = document.createElement("button");
+				titleButton.setAttribute("href", "/RnW/text?id=" + texts[i][0]);
+				titleButton.innerHTML = texts[i][1]; 
 				titleButton.setAttribute("class", "btn btn-btn-light");
 				box.appendChild(titleButton);
 			}
