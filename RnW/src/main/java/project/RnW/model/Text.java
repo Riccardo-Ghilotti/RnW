@@ -97,8 +97,8 @@ public class Text {
 	}
 	
 	
-	public static ArrayList<String[]> getAllTextsFromAuthor(User u) {
-		ArrayList<String[]> texts = new ArrayList<String[]>();
+	public static ArrayList<ArrayList<String>> getAllTextsFromAuthor(User u) {
+		ArrayList<ArrayList<String>> texts = new ArrayList<ArrayList<String>>();
 		try {
 			Connection conn = loadDB();
 			PreparedStatement pst = conn.prepareStatement(
@@ -107,7 +107,9 @@ public class Text {
 			pst.setInt(1, u.getId());
 			ResultSet rs = pst.executeQuery();
 			while(rs.next()) {
-				String[] s = {String.valueOf(rs.getInt(1)), rs.getString(1)};
+				ArrayList<String> s = new ArrayList<String>();
+				s.add("\"" + rs.getString(1) + "\"");
+				s.add("\"" + rs.getString(2) + "\"");
 				texts.add(s);
 			}
 		}catch(Exception ex) {
