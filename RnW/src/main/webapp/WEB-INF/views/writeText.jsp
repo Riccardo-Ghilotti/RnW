@@ -8,24 +8,63 @@
 <title>Write - RnW</title>
 </head>
 <body>
-	<div id="textBox">
+	<form action="saveText" id="textBox">
 		<h1>Titolo:</h1>
-		<input type="text" id="title" value="${TITLE}"><br>
+		<input type="text" id="title" name="title" value="${TITLE}"><br>
 		<div id="writeBox"></div>
-		<button onclick="saveText()">Salva!</button>
-		<button id="prevButton" onclick="previousArea()" disabled> Vai alla macro-sezione precedente </button>
-		<button id="nextButton" onclick="nextArea()">Vai alla prossima macro-sezione</button>
-		<button id="createSection" onclick="createSection()">Crea una nuova sezione</button>
-	</div>
+		<button  type="button" id="prevButton" onclick="previousArea()" 
+		disabled> Vai alla macro-sezione precedente </button>
+		<button type="button" id="nextButton" 
+		onclick="nextArea()">Vai alla prossima macro-sezione</button>
+		<button type="button" id="createSectionButton" 
+		onclick="createSection()">Crea una nuova sezione</button>
+		<input type="submit" value="Salva!">
+	</form>
 	
 <script>
-	var old_id = ${ID};
+	var id = ${ID};
+	var u_id = ${U_ID};
 	var titolo = "${TITLE}";
 	var intro = ${INTRO};
 	var corpus = ${CORPUS};
 	var conc = ${CONC};
 	var currentArea = "intro";
 	
+	const form = document.getElementById("textBox");
+	
+	form.addEventListener("submit", function(event){
+		if(saveText()){
+			formEls= [];
+			for(let i = 0; i < 5; i++){
+				formEls[i] = document.createElement("input");
+			}
+			
+			formEls[0].setAttribute("name", "intro");
+			formEls[0].setAttribute("value", JSON.stringify(intro));
+			formEls[1].setAttribute("name", "corpus");
+			formEls[1].setAttribute("value", JSON.stringify(corpus));
+			formEls[2].setAttribute("name","conc");
+			formEls[2].setAttribute("value", JSON.stringify(conc));
+			formEls[3].setAttribute("name","text_id");
+			formEls[3].setAttribute("value", id);
+			formEls[4].setAttribute("name","author");
+			formEls[4].setAttribute("value", u_id);
+			
+			for(let i = 0; i < 5; i++)
+				form.appendChild(formEls[i]);
+			
+			return true;
+		}
+		return false;
+	});
+	
+	
+
+	function createSection(){
+		var box = document.createElement("textarea");
+		box.setAttribute("class", "currentBox");
+		document.getElementById("writeBox").appendChild(box);
+	}
 	
 	function textToVariable(){
 		objects = document.getElementsByClassName("currentBox");
@@ -54,7 +93,6 @@
 		}
 		
 		let elements = document.getElementsByClassName("currentBox");
-		console.log(value)
 		if(value == "" && elements.length == 0){
 			var box = document.createElement("textarea");
 			box.setAttribute("class", "currentBox");
@@ -107,29 +145,39 @@
 	}
 	
 	
-	function createSection(){
-		var box = document.createElement("textarea");
-		box.setAttribute("class", "currentBox");
-		document.getElementById("writeBox").appendChild(box);
-	}
-	
 	function saveText(){
 		titolo = document.getElementById("title").value;
 		switch(currentArea){
 		case "intro":
 			intro = textToVariable();
-			break;
+			return true;
 		case "corpus":
 			corpus = textToVariable();
-			break;
+			return true;
 		case "conc":
 			conc = textToVariable();
-			break;
+			return true;
 		}
-		const xhttp = new XMLHttpRequest();
+		return false;
+		/* const xhttp = new XMLHttpRequest();
 		xhttp.open("POST", "/RnW/saveText");
-		xhttp.send(id, title, intro, corpus, conc);
-		
+		var params ={
+				"text_id": id,
+				"title": title,
+				"intro": intro,
+				"corpus": corpus,
+				"conc": conc,
+				"author": u_id
+		};
+		xhttp.setRequestHeader("Content-Type", "application/json");
+		xhttp.send(JSON.stringify(params));
+		xhttp.onload = function() {
+		    if (xhttp.status == 200) {
+		        console.log(xhttp.responseText);
+		    } else {
+		        console.log(xhttp.responseText);
+		    }
+		}; */
 	}
 	
 	window.onload = fillArea("intro");
