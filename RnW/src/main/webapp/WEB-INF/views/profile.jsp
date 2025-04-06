@@ -33,11 +33,11 @@
 			box.innerHTML = texts;
 			}
 		else {
+			texts = JSON.parse(texts);
 			for(let i = 0; i < texts.length; i++){
 				var titleButton = document.createElement("button");
 				titleButton.setAttribute("href", "/RnW/text?id=" + texts[i][0]);
-				titleButton.innerHTML = texts[i][1]; 
-				titleButton.setAttribute("class", "btn btn-btn-light");
+				titleButton.innerHTML = texts[i][1];
 				box.appendChild(titleButton);
 			}
 		}
