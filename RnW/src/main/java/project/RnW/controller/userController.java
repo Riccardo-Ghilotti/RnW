@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 
 import project.RnW.model.Text;
@@ -30,9 +32,19 @@ public class userController {
 			else {
 				mv = new ModelAndView("profile");
 				mv.addObject("NAME", name);
-				if(!Text.getAllTextsFromAuthor(User.getUser(name)).isEmpty())
-					mv.addObject("TEXTS", Text.getAllTextsFromAuthor(
-							User.getUser(name)));
+				if(!Text.getAllTextsFromAuthor(User.getUser(name)).isEmpty()) {
+					ObjectMapper mp = new ObjectMapper();
+					String texts;
+					try {
+						texts = mp.writeValueAsString(
+								Text.getAllTextsFromAuthor(User.getUser(name)));
+						mv.addObject("TEXTS", texts);
+					} catch (JsonProcessingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					}
 				else
 					mv.addObject("TEXTS", 
 							"'Non hai ancora scritto nessun testo'");
@@ -43,7 +55,6 @@ public class userController {
 			mv.addObject("ERROR", "'Le password non coincidono'");
 		}
 		return mv;
-
 	}
 	
 	@RequestMapping("/login")
@@ -53,15 +64,16 @@ public class userController {
 	}
 
 	@RequestMapping("/user")
-	public ModelAndView login(@RequestParam(value = "username", required = true) String name,
+	public ModelAndView login(
+			@RequestParam(value = "username", required = true) String name,
 			@RequestParam(value = "password", required = true) String pw) {
 		pw = Hashing.sha256().hashString(pw, StandardCharsets.UTF_8).toString();
 		if(User.login(name, pw)) {
 			ModelAndView mv = new ModelAndView("profile");
 			mv.addObject("NAME", name);
 			if(!Text.getAllTextsFromAuthor(User.getUser(name)).isEmpty())
-				mv.addObject("TEXTS", Text.getAllTextsFromAuthor(
-						User.getUser(name)));
+				mv.addObject("TEXTS", 
+						Text.getAllTextsFromAuthor(User.getUser(name)));
 			else
 				mv.addObject("TEXTS", 
 						"'Non hai ancora scritto nessun testo'");
