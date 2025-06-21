@@ -8,7 +8,7 @@
 <title>Write - RnW</title>
 </head>
 <body>
-	<form action="saveText" id="textBox">
+	<form action="saveText" id="textBox" method="POST">
 		<h1>Titolo:</h1>
 		<input type="text" id="title" name="title" value="${TITLE}"><br>
 		<div id="writeBox"></div>
@@ -23,7 +23,7 @@
 	
 <script>
 	var id = ${ID};
-	var u_id = ${U_ID};
+	var u_id = "${U_ID}";
 	var titolo = "${TITLE}";
 	var intro = ${INTRO};
 	var corpus = ${CORPUS};
@@ -159,26 +159,7 @@
 			return true;
 		}
 		return false;
-		/* const xhttp = new XMLHttpRequest();
-		xhttp.open("POST", "/RnW/saveText");
-		var params ={
-				"text_id": id,
-				"title": title,
-				"intro": intro,
-				"corpus": corpus,
-				"conc": conc,
-				"author": u_id
-		};
-		xhttp.setRequestHeader("Content-Type", "application/json");
-		xhttp.send(JSON.stringify(params));
-		xhttp.onload = function() {
-		    if (xhttp.status == 200) {
-		        console.log(xhttp.responseText);
-		    } else {
-		        console.log(xhttp.responseText);
-		    }
-		}; */
-	}
+		}
 	
 	window.onload = fillArea("intro");
 	

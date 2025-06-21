@@ -14,7 +14,7 @@
 </body>
 	
 	<form action="writeText" method="POST">
-	<input type="text" value="${NAME}" name="username" hidden="true">
+	<input type="text" value="${ID}" name="id" hidden="true">
 	<input type="submit" value="Scrivi un Testo">
 	</form>
 	
@@ -34,10 +34,11 @@
 			}
 		else {
 			texts = JSON.parse(texts);
+			console.log(texts);
 			for(let i = 0; i < texts.length; i++){
 				var titleButton = document.createElement("button");
-				titleButton.setAttribute("href", "/RnW/text?id=" + texts[i][0]);
-				titleButton.innerHTML = texts[i][1];
+				titleButton.setAttribute("href", "/RnW/text?id=" + texts[i]["id"]);
+				titleButton.innerHTML = texts[i]["title"];
 				box.appendChild(titleButton);
 			}
 		}

@@ -10,8 +10,8 @@
 </head>
 <body>
 	<form action="user" Method="POST" id="loginForm">
-	<input type="text" name="username" placeholder="Username">
-	<input type="text" name="password" placeholder="Password">
+	<input type="text" name="email" placeholder="mail">
+	<input type="text" name="password" id="pwd" placeholder="Password">
 	<input type="submit" value="Log In!" id="submitButton">
 	</form>
 	<button onclick="registerView()" id="registerButton">Register Now!</button>
@@ -27,10 +27,17 @@
 		formLogin.setAttribute("action","register");
 		let t = document.createElement("input");
 		t.setAttribute("type", "text");
-		t.setAttribute("name", "rPassword");
-		t.setAttribute("placeholder", "Repeat Password");
-		t.setAttribute("id", "rPass")
-		formLogin.insertBefore(t,document.getElementById("submitButton"));
+		t.setAttribute("name", "username");
+		t.setAttribute("placeholder", "username");
+		t.setAttribute("id", "name")
+		let u = document.createElement("input");
+		u.setAttribute("type", "text");
+		u.setAttribute("name", "rPassword");
+		u.setAttribute("placeholder", "Repeat Password");
+		u.setAttribute("id", "rPass")
+		
+		formLogin.insertBefore(t, document.getElementById("pwd"));
+		formLogin.insertBefore(u,document.getElementById("submitButton"));
 		document.getElementById("submitButton").setAttribute("value", "Register!");
 		document.getElementById("registerButton").remove();
 		let f = document.createElement("button");
@@ -41,6 +48,7 @@
 	}
 	
 	function loginView(){
+		document.getElementById("name").remove();
 		document.getElementById("rPass").remove();
 		document.getElementById("submitButton").setAttribute("value", "Log In!");
 		formLogin.setAttribute("action", "user");

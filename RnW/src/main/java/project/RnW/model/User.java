@@ -9,93 +9,61 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ResourceBundle;
 
+import org.bson.BsonObjectId;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 
 import java.sql.Statement;
+import project.RnW.model.Database;
+
 public class User {
 	
 	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
-	private int id;
+	private String mail;
+	@JsonProperty("_id")
+    @JsonAlias({"_id.$oid"})
+	private ObjectId id;
 	private String name;
 	private boolean admin;
 	
-	public User(String name, String pwd, boolean admin) {
-		int id_temp = insert(name, pwd, admin);
-		if(id_temp > -1) {
-			this.id=id_temp;
+	public User(String mail, String name, String pwd, boolean admin) {
+		ObjectId id_temp = Database.insert(mail, name, pwd, admin);
+		if(id_temp != null) {
+			this.id= id_temp;
+			this.mail = mail;
 			this.name = name;
 			this.admin = admin;
 		}
+		else {
+			this.id = null;
+			System.err.println("Errore nella creazione dell'utente");
+		}
 	}
 	
-	public User(int id, String name, boolean admin) {
+	@JsonCreator
+	public User(
+			@JsonProperty("_id") ObjectId id,
+			@JsonProperty("mail") String mail,
+			@JsonProperty("name") String name,
+			@JsonProperty("admin") boolean admin) {
 		this.id = id;
+		this.mail = mail;
 		this.name = name;
 		this.admin = admin;
 	}
 
-
-	private static Connection loadDB() throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
-		return conn;
-	}
-
-	public static int insert(String name, String pwd, boolean admin) {
-		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
-		int id = -1;
-		try{
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("INSERT INTO users (NAME, PW, ADMINISTRATOR) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
-			pst.setString(1, name);
-			pst.setString(2, pwd);
-			pst.setBoolean(3, admin);
-			pst.executeUpdate();
-			ResultSet rs = pst.getGeneratedKeys();
-			if(rs.next()) {
-				id = rs.getInt(1);
-			}
-		}catch(Exception ex) {
-			System.out.println("ERROR " + ex.toString()); //TODO: fix exception
-		}
-		return id;
-	}
-
-	protected void update(String name, String pwd) throws ClassNotFoundException, SQLException {
-			Connection conn = loadDB();
-			PreparedStatement stmt = null;
-			if (pwd == null) {
-				stmt = conn.prepareStatement("UPDATE users SET name = (?) WHERE id = (?);");
-		    	stmt.setString(1, name);
-			    stmt.setInt(2, this.id);
-			    this.name = name;
-			    }
-		    else {
-		    	stmt = conn.prepareStatement("UPDATE users SET pw = (?) WHERE id = (?);");
-		    	stmt.setString(1, pwd);
-			    stmt.setInt(2, this.id);
-			    }
-			stmt.executeUpdate();
-	}
-
-	public void delete() {
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("DELETE FROM users WHERE name=(?);");
-			pst.setString(1, this.name);
-			pst.execute();
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-
 	public void changeName(String name) {
 		try {
-			update(name, null);
-		}catch(SQLIntegrityConstraintViolationException e) {
-			System.out.println("ERROR: name already taken");//TODO: print to view
+			Database.update(id, name, null);
+			this.name=name;
 		}catch(Exception e) {
 			System.out.println("ERROR: " + e);//TODO: fix exception
 		}
@@ -104,13 +72,13 @@ public class User {
 	public void changePassword(String pwd) {
 		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
 		try {
-			update(null, pwd);
+			Database.update(id, null, pwd);
 		}catch(Exception e) {
 			System.out.println("ERROR: e");//TODO: fix exception
 		}
 	}
 
-	public int getId() {
+	public ObjectId getId() {
 		return id;
 	}
 
@@ -118,53 +86,21 @@ public class User {
 		return name;
 	}
 	
-	public static User getUser(String name) {
-		User u = null;
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("SELECT id, administrator FROM users WHERE name=(?)");
-			pst.setString(1, name);
-			ResultSet rs = pst.executeQuery();
-			if(rs.next()) {
-				int temp_id = rs.getInt("id");
-				boolean temp_admin = rs.getBoolean("administrator");
-				u = new User(temp_id,name,temp_admin);
-			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return u;
-	}
-	
-	public static User getUser(int id) {
-		User u = null;
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("SELECT name, administrator FROM users WHERE id=(?)");
-			pst.setInt(1, id);
-			ResultSet rs = pst.executeQuery();
-			if(rs.next()) {
-				String temp_name = rs.getString("name");
-				boolean temp_admin = rs.getBoolean("administrator");
-				u = new User(id,temp_name,temp_admin);
-			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return u;
-
-	}
 
 	public boolean isAdmin() {
 		return admin;
+	}
+	
+	public static User getUser(ObjectId id2) {
+		Document docUser = Database.getUser(id2);
+		if(docUser == null)
+			return null;
+		ObjectId id = docUser.getObjectId("_id");
+	    String mail = docUser.getString("mail");
+	    String name = docUser.getString("name");
+	    boolean admin = docUser.getBoolean("admin", false);
+	    
+	    return new User(id, mail, name, admin);
 	}
 	
 	public boolean Equals(User u) {
@@ -173,26 +109,20 @@ public class User {
 		return false;
 	}
 	
-	public static boolean login(String name, String password) {
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement("SELECT pw FROM users WHERE name=(?)");
-			pst.setString(1, name);
-			ResultSet rs = pst.executeQuery();
-			if(rs.next()) {
-				if(rs.getString("pw").equals(password))
-					return true;
-				}
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
+	public static User login(String mail, String password) {
+		Document docUser = Database.getUser(mail, password);
+		if(docUser == null)
+			return null;
+		ObjectId id = docUser.getObjectId("_id");
+	    String name = docUser.getString("name");
+	    boolean admin = docUser.getBoolean("admin", false);
+	    
+	    return new User(id, mail, name, admin);
 	}
 	
+	public boolean delete() {
+		return Database.deleteUser(id);
+	}
 	
 }
 

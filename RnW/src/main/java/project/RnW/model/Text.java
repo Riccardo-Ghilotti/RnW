@@ -10,42 +10,50 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.FindIterable;
+
 public class Text {
 
 	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
-	private int id;
+	private ObjectId id;
 	private String title;
-	private String intro;
-	private String corpus;
-	private String conclusion;
+	private ArrayList<String> intro;
+	private ArrayList<String> corpus;
+	private ArrayList<String> conclusion;
 	private User author;
 	
 	
 	public Text(String title, ArrayList<String> intro, ArrayList<String> corpus,
 			ArrayList<String> conclusion, User author) {
 		this.title = title;
-		this.intro = compose(intro);
-		this.corpus = compose(corpus);
-		this.conclusion = compose(conclusion);
+		this.intro = intro;
+		this.corpus = corpus;
+		this.conclusion = conclusion;
 		this.author = author;
 		
-		this.id = this.insert();
+		this.id = Database.insert(title, intro, corpus, conclusion, author);
 		
 	}
 	
 
 	
-	public Text(int id, String title, ArrayList<String> intro, 
-			ArrayList<String> corpus, ArrayList<String> conclusion, User author) {
+	public Text(ObjectId id, String title, ArrayList<String> intro, 
+			ArrayList<String> corpus, ArrayList<String> conclusion, User author)
+	{
 		this.id = id;
 		this.title = title;
-		this.intro = compose(intro);
-		this.corpus = compose(corpus);
-		this.conclusion = compose(conclusion);
+		this.intro = intro;
+		this.corpus = corpus;
+		this.conclusion = conclusion;
 		this.author = author;
 	}
 	
-	public Text(int id) {
+	/* public Text(int id) {
 		this.id = id;
 		try {
 			Connection conn = loadDB();
@@ -66,41 +74,7 @@ public class Text {
 			e.printStackTrace();
 		}
 		
-	}
-
-	private static Connection loadDB() throws ClassNotFoundException, 
-	SQLException {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = DriverManager.getConnection(dbInfo.getString("db.url"), 
-				dbInfo.getString("db.user"), dbInfo.getString("db.pwd"));
-		return conn;
-	}
-
-
-	private int insert() {
-		int id = -1;
-		try{
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement(
-					"INSERT INTO texts "
-					+ "(title, userId, introduction, corpus, conclusion)"
-					+ " VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-			pst.setString(1, title);
-			pst.setInt(2, author.getId());
-			pst.setString(3, intro);
-			pst.setString(4, corpus);
-			pst.setString(5, conclusion);
-			pst.executeUpdate();
-			ResultSet rs = pst.getGeneratedKeys();
-			if(rs.next()) {
-				id = rs.getInt(1);
-			}
-		}catch(Exception ex) {
-			System.out.println("ERROR " + ex.toString()); //TODO: fix exception
-		}
-		return id;
-		
-	}
+	}*/
 	
 	
 	public static String compose(ArrayList<String> sections) {
@@ -109,33 +83,37 @@ public class Text {
 	}
 	
 	
-	public static ArrayList<ArrayList<String>> getAllTextsFromAuthor(User u) {
-		ArrayList<ArrayList<String>> texts = new ArrayList<ArrayList<String>>();
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement(
-					"SELECT id, title FROM texts WHERE userId = (?)"
-					);
-			pst.setInt(1, u.getId());
-			ResultSet rs = pst.executeQuery();
-			while(rs.next()) {
-				ArrayList<String> s = new ArrayList<String>();
-				s.add("\"" + rs.getString(1) + "\"");
-				s.add("\"" + rs.getString(2) + "\"");
-				texts.add(s);
-			}
-		}catch(Exception ex) {
-			System.out.println("ERROR" + ex.toString());
+	public static ArrayList<String[]> getAllTextsFromAuthor(User u) {
+		// ArrayList<ArrayList<String>> texts = new ArrayList<ArrayList<String>>();
+		FindIterable<Document> textIt = 
+				Database.getAllTextsFromAuthor(u.getId());
+		ArrayList<String[]> textList = new ArrayList<>();
+		for (Document doc : textIt) {
+			String[] temp = {doc.getObjectId("_id").toString(),
+					doc.getString("title")};
+			textList.add(temp);
 		}
-		return texts;
+		return textList;
+	}
+	
+	public static Text getText(String id) {
+		ObjectMapper mp = new ObjectMapper();
+		Document doc = Database.getText(id);
+		Text t = null;
+		try {
+			t = mp.readValue(doc.toJson(), Text.class);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return t;
 	}
 	
 	public void changeIntro(ArrayList<String> intro, User u) 
 			throws AccessDeniedException {
 		if(u.equals(author)) {
-			String introTmp = compose(intro);
-			update(this.id, introTmp, this.corpus, this.conclusion);
-			this.intro = introTmp;
+			Database.update(this.id, intro, this.corpus, this.conclusion);
+			this.intro = intro;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -144,9 +122,8 @@ public class Text {
 	public void changeCorpus(ArrayList<String> corpus, User u) 
 			throws AccessDeniedException {
 		if(u.equals(author)) {	
-			String corpusTmp = compose(corpus);
-			update(this.id, this.intro, corpusTmp, this.conclusion);
-			this.corpus = corpusTmp;
+			Database.update(this.id, this.intro, corpus, this.conclusion);
+			this.corpus = corpus;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
@@ -155,63 +132,18 @@ public class Text {
 	public void changeConclusion(ArrayList<String> conclusion, User u) 
 			throws AccessDeniedException {
 		if(u.equals(author)) {
-			String concTmp = compose(conclusion);
-			update(this.id, this.intro, this.corpus, concTmp);
-			this.conclusion = concTmp;
+			Database.update(this.id, this.intro, this.corpus, conclusion);
+			this.conclusion = conclusion;
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
 	}
-
-
-	private void update(int id, String intro, String corpus, String conclusion) {
-		try {
-			Connection conn = loadDB();
-			PreparedStatement stmt = null;
-			stmt = conn.prepareStatement(
-					"UPDATE texts "
-					+ "SET introduction=(?), corpus = (?), conclusion = (?) "
-					+ "WHERE id = (?);");
-			stmt.setString(1, intro);
-			stmt.setString(2, corpus);
-			stmt.setString(3, conclusion);
-			stmt.setInt(4, this.id);
-			stmt.executeUpdate();
-		} catch (ClassNotFoundException | SQLException e) {
-			System.out.println("ERROR " + e.toString());
-		}
-	}
 	
-	protected void delete(User u) throws AccessDeniedException {
-		if(u.equals(author) || u.isAdmin())	
-			try {
-				Connection conn = loadDB();
-				PreparedStatement pst = conn.prepareStatement(
-						"DELETE FROM texts WHERE id=(?);");
-				pst.setInt(1, this.id);
-				pst.execute();
-			} catch (ClassNotFoundException | SQLException e) {
-				System.out.println("ERROR " + e.toString());
-			}
-		else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-	}
-	
-	public ArrayList<String> decompose(String text) {
-		String[] textTmp = text.split("|");
-		ArrayList<String> txt = new ArrayList<String>();
-		for(String s : textTmp){
-			txt.add(s);
-		}
-		return txt;
-	}
-
 	public User getAuthor() {
 		return author;
 	}
 
-	public int getId() {
+	public ObjectId getId() {
 		return id;
 	}
 
@@ -220,20 +152,29 @@ public class Text {
 	}
 	
 	public ArrayList<String> getIntro() {
-		return decompose(intro);
+		return intro;
 	}
 
 	public ArrayList<String> getCorpus() {
-		return decompose(corpus);
+		return corpus;
 	}
 
 	public ArrayList<String> getConclusion() {
-		return decompose(conclusion);
+		return conclusion;
 	}
 
 	public boolean Equals(Text t) {
 		if(t.getId() == this.getId())
 			return true;
 		return false;
+	}
+
+
+
+	public Boolean delete(User u) throws AccessDeniedException {
+		// TODO Auto-generated method stub
+		if (u.equals(author))
+			return Database.deleteText(id);
+		else throw new AccessDeniedException("Non sei l'autore di questo testo");
 	}
 }
