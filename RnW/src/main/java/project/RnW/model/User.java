@@ -28,8 +28,6 @@ public class User {
 	
 	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
 	private String mail;
-	@JsonProperty("_id")
-    @JsonAlias({"_id.$oid"})
 	private ObjectId id;
 	private String name;
 	private boolean admin;
@@ -48,12 +46,7 @@ public class User {
 		}
 	}
 	
-	@JsonCreator
-	public User(
-			@JsonProperty("_id") ObjectId id,
-			@JsonProperty("mail") String mail,
-			@JsonProperty("name") String name,
-			@JsonProperty("admin") boolean admin) {
+	public User(ObjectId id, String mail, String name, boolean admin) {
 		this.id = id;
 		this.mail = mail;
 		this.name = name;
@@ -103,8 +96,15 @@ public class User {
 	    return new User(id, mail, name, admin);
 	}
 	
-	public boolean Equals(User u) {
-		if(u.getId() == this.getId()) 
+	public static User getUser(String id) {
+		ObjectId idObj = null;
+		if(ObjectId.isValid(id))
+			idObj = new ObjectId(id);
+		return getUser(idObj);
+	}
+	
+	public boolean equals(User u) {
+		if(u.getId().equals(this.getId())) 
 			return true;
 		return false;
 	}

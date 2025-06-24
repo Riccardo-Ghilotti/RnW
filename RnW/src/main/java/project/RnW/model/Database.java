@@ -127,8 +127,8 @@ public class Database {
 		return textIt;
 	}
 	
-	public static Document getText(String id) {
-		Document result = texts.find(eq("_id", new ObjectId(id))).first();
+	public static Document getText(ObjectId id) {
+		Document result = texts.find(eq("_id", id)).first();
 		return result;
 	}
 }

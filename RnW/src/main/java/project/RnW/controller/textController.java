@@ -20,7 +20,7 @@ import project.RnW.model.User;
 @Controller
 public class textController {
 	
-	@RequestMapping("/writeText")
+	@RequestMapping(value = "/writeText", params = "!textId")
 	public ModelAndView writeText(@RequestParam("id") String id) {
 		ModelAndView mv = new ModelAndView("writeText");
 		mv.addObject("ID", -1);
@@ -31,6 +31,32 @@ public class textController {
 		return mv;
 	}
 	
+	@RequestMapping(value = "/writeText", params = "textId")
+	public ModelAndView writeText(@RequestParam("id") String id,
+			@RequestParam("textId") String textId) {
+		Text t = Text.getText(textId);
+		ObjectMapper mp = new ObjectMapper();
+		ModelAndView mv = new ModelAndView("writeText");
+		if (t.isAuthor(User.getUser( id))) {
+			mv.addObject("ID", textId);
+			mv.addObject("TITLE", t.getTitle());
+			try {
+				mv.addObject("INTRO", mp.writeValueAsString(t.getIntro()));
+				mv.addObject("CORPUS", mp.writeValueAsString(t.getCorpus()));
+				mv.addObject("CONC", mp.writeValueAsString(t.getConclusion()));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+ 
+			mv.addObject("U_ID", id);
+		}
+		else {
+			mv.addObject("ERROR", "Non sei l'autore di questo testo");
+		}
+		return mv;
+	}
+	
 	@RequestMapping("/saveText")
 	public ModelAndView textSent(
 			@RequestParam("text_id") String id, 
@@ -38,7 +64,7 @@ public class textController {
 			@RequestParam("intro") String intro, 
 			@RequestParam("corpus") String corpus, 
 			@RequestParam("conc") String conc,
-			@RequestParam("author") String userIdStr
+			@RequestParam("author") String userId
 			) {
 		ObjectMapper mapper = new ObjectMapper();
 		// TODO: CHANGE RETURNED PAGE
@@ -54,11 +80,6 @@ public class textController {
 		} catch (JsonProcessingException e) {
 			System.out.println("Errore: " + e.toString());
 		}
-	
-		ObjectId userId = null;
-		if(ObjectId.isValid(userIdStr))
-			userId = new ObjectId(userIdStr);
-	
 		if(id.equals("-1")) {
 			if(new Text(title, introList, corpusList,
 					concList, User.getUser(userId)).getId() == null) //check if this works
@@ -83,12 +104,26 @@ public class textController {
 	
 	@RequestMapping("/text")
 	public ModelAndView textLoad(
-			@RequestParam("id") String textId) {
+			@RequestParam("id") String textId,
+			@RequestParam("uid") String userId) {
 		Text t = Text.getText(textId);
 		ObjectMapper mp = new ObjectMapper();
+		ModelAndView mv = new ModelAndView("readText");
+		mv.addObject("IS_AUTHOR", t.isAuthor(User.getUser(userId)));
+		mv.addObject("TITLE", t.getTitle());
+		mv.addObject("ID", textId);
+		mv.addObject("U_ID", userId);
+
+		try {
+			mv.addObject("INTRO", mp.writeValueAsString(t.getIntro()));
+			mv.addObject("CORPUS", mp.writeValueAsString(t.getCorpus()));
+			mv.addObject("CONC", mp.writeValueAsString(t.getConclusion()));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		
-		return null;
+		return mv;
 	}
 	
 	

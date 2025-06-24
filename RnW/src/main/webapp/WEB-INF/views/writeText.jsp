@@ -22,12 +22,13 @@
 	</form>
 	
 <script>
-	var id = ${ID};
+	var id = "${ID}";
 	var u_id = "${U_ID}";
 	var titolo = "${TITLE}";
 	var intro = ${INTRO};
 	var corpus = ${CORPUS};
 	var conc = ${CONC};
+	var error = "${ERROR}";
 	var currentArea = "intro";
 	
 	const form = document.getElementById("textBox");
@@ -161,7 +162,17 @@
 		return false;
 		}
 	
-	window.onload = fillArea("intro");
+	if(error != "Non sei l'autore di questo testo")
+		window.onload = fillArea("intro");
+	else{
+		window.onload = function(){
+			document.innterHTML="";
+			alert(error);
+			var link = document.createElement("a");
+			link.innerHTML = "Ritorna alla home";
+			link.setAttribute("href").value("localhost:8080/RnW/index.jsp")
+		}
+	}
 	
 </script>
 </body>

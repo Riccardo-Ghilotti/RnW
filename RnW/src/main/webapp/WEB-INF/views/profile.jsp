@@ -24,6 +24,29 @@
 
 <script>
 	var texts = '${TEXTS}';
+	var sessionData = sessionStorage;
+	
+	
+	function createForm(id, u_id){
+		form = document.createElement("form");
+		form.method = "POST";
+		form.action = "/RnW/text";
+		form.style.display = "inline";
+		
+		var input = document.createElement("input");
+		input.setAttribute("hidden","true");
+		input.setAttribute("value", id);
+		input.setAttribute("name", "id");
+		form.appendChild(input);
+		
+		var input2 = document.createElement("input");
+		input2.setAttribute("hidden","true");
+		input2.setAttribute("value", u_id);
+		input2.setAttribute("name", "uid");
+		form.appendChild(input2);
+		
+		return form;
+	}
 	
 	window.onload = function(){
 		var box = document.createElement("p");
@@ -37,9 +60,11 @@
 			console.log(texts);
 			for(let i = 0; i < texts.length; i++){
 				var titleButton = document.createElement("button");
-				titleButton.setAttribute("href", "/RnW/text?id=" + texts[i]["id"]);
+				var form = createForm(texts[i]["id"], "${ID}");
 				titleButton.innerHTML = texts[i]["title"];
-				box.appendChild(titleButton);
+				titleButton.setAttribute("type", "submit");
+				form.appendChild(titleButton);
+				box.appendChild(form);
 			}
 		}
 	}

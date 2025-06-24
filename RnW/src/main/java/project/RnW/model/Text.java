@@ -96,17 +96,24 @@ public class Text {
 		return textList;
 	}
 	
-	public static Text getText(String id) {
+	public static Text getText(ObjectId id2) {
 		ObjectMapper mp = new ObjectMapper();
-		Document doc = Database.getText(id);
-		Text t = null;
-		try {
-			t = mp.readValue(doc.toJson(), Text.class);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return t;
+		Document doc = Database.getText(id2);
+		
+		ObjectId id = doc.getObjectId("_id");
+		String title = doc.getString("title");
+		ArrayList<String> intro = doc.get("intro", ArrayList.class);
+		ArrayList<String> corpus = doc.get("corpus", ArrayList.class);
+		ArrayList<String> conc = doc.get("conclusion", ArrayList.class);
+		ObjectId userId = doc.getObjectId("userId");
+		
+		return new Text(id, title, intro, corpus, conc, User.getUser(userId));
+	}
+	public static Text getText(String id) {
+		ObjectId idObj = null;
+		if(ObjectId.isValid(id))
+			idObj = new ObjectId(id);
+		return getText(idObj);
 	}
 	
 	public void changeIntro(ArrayList<String> intro, User u) 
@@ -137,6 +144,12 @@ public class Text {
 		}else {
 			throw new AccessDeniedException("Non sei l'autore di questo testo");
 		}
+	}
+	
+	public boolean isAuthor(User u) {
+		if (u.equals(author))
+			return true;
+		return false;
 	}
 	
 	public User getAuthor() {
