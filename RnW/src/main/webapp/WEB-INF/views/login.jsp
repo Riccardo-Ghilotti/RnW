@@ -10,31 +10,41 @@
 </head>
 <body>
 	<form action="user" Method="POST" id="loginForm">
-	<input type="text" name="email" placeholder="mail">
-	<input type="text" name="password" id="pwd" placeholder="Password">
+	<input type="text" name="email" placeholder="mail" required>
+	<input type="text" name="password" id="pwd" placeholder="Password" required>
 	<input type="submit" value="Log In!" id="submitButton">
 	</form>
 	<button onclick="registerView()" id="registerButton">Register Now!</button>
 	
+	
+	<a href="home" class="btn btn-info" role="button">Vai alla home!</a>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script>
 
 	var formLogin = document.getElementById("loginForm");
+	
+	
 	if("${ERROR}" != "")
-		alert("${ERROR}")
+		alert("${ERROR}");
+		
+		
 	function registerView(){
 		formLogin.setAttribute("action","register");
-		let t = document.createElement("input");
+		
+		var t = document.createElement("input");
 		t.setAttribute("type", "text");
 		t.setAttribute("name", "username");
 		t.setAttribute("placeholder", "username");
-		t.setAttribute("id", "name")
-		let u = document.createElement("input");
+		t.setAttribute("id", "name");
+		t.required;
+		
+		var u = document.createElement("input");
 		u.setAttribute("type", "text");
 		u.setAttribute("name", "rPassword");
 		u.setAttribute("placeholder", "Repeat Password");
-		u.setAttribute("id", "rPass")
+		u.setAttribute("id", "rPass");
+		u.required;
 		
 		formLogin.insertBefore(t, document.getElementById("pwd"));
 		formLogin.insertBefore(u,document.getElementById("submitButton"));

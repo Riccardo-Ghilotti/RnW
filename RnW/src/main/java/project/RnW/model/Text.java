@@ -12,182 +12,124 @@ import java.util.ResourceBundle;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoException;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
+
+import project.RnW.controller.ControllerUtils;
+import project.RnW.mappers.mapperText;
 
 public class Text {
 
-	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
 	private ObjectId id;
 	private String title;
 	private ArrayList<String> intro;
 	private ArrayList<String> corpus;
 	private ArrayList<String> conclusion;
+	private ArrayList<Comment> comments;
+	private boolean isPrivate;
 	private User author;
 	
-	
-	public Text(String title, ArrayList<String> intro, ArrayList<String> corpus,
-			ArrayList<String> conclusion, User author) {
-		this.title = title;
-		this.intro = intro;
-		this.corpus = corpus;
-		this.conclusion = conclusion;
-		this.author = author;
-		
-		this.id = Database.insert(title, intro, corpus, conclusion, author);
-		
-	}
-	
 
-	
 	public Text(ObjectId id, String title, ArrayList<String> intro, 
-			ArrayList<String> corpus, ArrayList<String> conclusion, User author)
+			ArrayList<String> corpus, ArrayList<String> conclusion, 
+			ArrayList<Comment> comments, boolean isPrivate, User author)
 	{
 		this.id = id;
 		this.title = title;
 		this.intro = intro;
 		this.corpus = corpus;
 		this.conclusion = conclusion;
+		this.comments = comments;
+		this.isPrivate = isPrivate;
 		this.author = author;
 	}
 	
-	/* public Text(int id) {
-		this.id = id;
-		try {
-			Connection conn = loadDB();
-			PreparedStatement pst = conn.prepareStatement(
-					"SELECT * FROM texts WHERE id = (?)"
-					);
-			pst.setInt(1, id);
-			ResultSet rs = pst.executeQuery();
-			if(rs.next()) {
-				this.title = rs.getString("title");
-				this.author = User.getUser(rs.getInt("userId"));
-				this.intro = rs.getString("introduction");
-				this.corpus = rs.getString("corpus");
-				this.conclusion = rs.getString("conclusion");
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}*/
-	
-	
-	public static String compose(ArrayList<String> sections) {
-		String macroSecotion = String.join("|", sections);
-		return macroSecotion;
+	//returns a list that contains all the comments of this Text
+	public ArrayList<Comment> getComments() {
+		return comments;
+	}
+
+	//is used to change the macro-section "Introduction" of this Text
+	public void changeIntro(ArrayList<String> intro, User u) {
+		this.intro = intro;
 	}
 	
-	
-	public static ArrayList<String[]> getAllTextsFromAuthor(User u) {
-		// ArrayList<ArrayList<String>> texts = new ArrayList<ArrayList<String>>();
-		FindIterable<Document> textIt = 
-				Database.getAllTextsFromAuthor(u.getId());
-		ArrayList<String[]> textList = new ArrayList<>();
-		for (Document doc : textIt) {
-			String[] temp = {doc.getObjectId("_id").toString(),
-					doc.getString("title")};
-			textList.add(temp);
-		}
-		return textList;
+	//is used to change the macro-section "Corpus" of this Text
+	public void changeCorpus(ArrayList<String> corpus, User u) {
+		this.corpus = corpus;
 	}
 	
-	public static Text getText(ObjectId id2) {
-		ObjectMapper mp = new ObjectMapper();
-		Document doc = Database.getText(id2);
-		
-		ObjectId id = doc.getObjectId("_id");
-		String title = doc.getString("title");
-		ArrayList<String> intro = doc.get("intro", ArrayList.class);
-		ArrayList<String> corpus = doc.get("corpus", ArrayList.class);
-		ArrayList<String> conc = doc.get("conclusion", ArrayList.class);
-		ObjectId userId = doc.getObjectId("userId");
-		
-		return new Text(id, title, intro, corpus, conc, User.getUser(userId));
-	}
-	public static Text getText(String id) {
-		ObjectId idObj = null;
-		if(ObjectId.isValid(id))
-			idObj = new ObjectId(id);
-		return getText(idObj);
+	//is used to change the macro-section "Conclusion" of this Text
+	public void changeConclusion(ArrayList<String> conclusion, User u) {
+		this.conclusion = conclusion;
 	}
 	
-	public void changeIntro(ArrayList<String> intro, User u) 
-			throws AccessDeniedException {
-		if(u.equals(author)) {
-			Database.update(this.id, intro, this.corpus, this.conclusion);
-			this.intro = intro;
-		}else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-	}
-	
-	public void changeCorpus(ArrayList<String> corpus, User u) 
-			throws AccessDeniedException {
-		if(u.equals(author)) {	
-			Database.update(this.id, this.intro, corpus, this.conclusion);
-			this.corpus = corpus;
-		}else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-	}
-	
-	public void changeConclusion(ArrayList<String> conclusion, User u) 
-			throws AccessDeniedException {
-		if(u.equals(author)) {
-			Database.update(this.id, this.intro, this.corpus, conclusion);
-			this.conclusion = conclusion;
-		}else {
-			throw new AccessDeniedException("Non sei l'autore di questo testo");
-		}
-	}
-	
+	//returns true if the inserted User u is the author of this text
 	public boolean isAuthor(User u) {
 		if (u.equals(author))
 			return true;
 		return false;
 	}
 	
+	//returns the author(User) of this Text
 	public User getAuthor() {
 		return author;
 	}
 
+	//returns the id of this Text
 	public ObjectId getId() {
 		return id;
 	}
 
+	//returns the title of this Text
 	public String getTitle() {
 		return title;
 	}
 	
+	//returns the Introduction of this Text
 	public ArrayList<String> getIntro() {
 		return intro;
 	}
 
+	
+	//returns the Corpus of this Text
 	public ArrayList<String> getCorpus() {
 		return corpus;
 	}
 
+	//returns the Conclusion of this Text
 	public ArrayList<String> getConclusion() {
 		return conclusion;
 	}
 
+	//returns true if this Text and t are equals
 	public boolean Equals(Text t) {
+		//since the ids are unique, checking those is enough
 		if(t.getId() == this.getId())
 			return true;
 		return false;
 	}
 
 
-
-	public Boolean delete(User u) throws AccessDeniedException {
-		// TODO Auto-generated method stub
-		if (u.equals(author))
-			return Database.deleteText(id);
-		else throw new AccessDeniedException("Non sei l'autore di questo testo");
+	//returns true if this Text is private
+	public boolean isPrivate() {
+		return isPrivate;
 	}
+
+
+	//is used to change visibility of this Text
+	public void setPrivate(boolean isPrivate, User user) {
+		this.isPrivate = isPrivate;
+	}
+
+
+
+	
+	
+	
 }

@@ -1,21 +1,31 @@
 package project.RnW.controller;
 
 import java.nio.file.AccessDeniedException;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.MongoException;
 
+
+import project.RnW.model.Comment;
 import project.RnW.model.Text;
 import project.RnW.model.User;
+import project.RnW.service.serviceComment;
+import project.RnW.service.serviceReport;
+import project.RnW.service.serviceText;
+import project.RnW.service.serviceUser;
+
 
 @Controller
 public class textController {
@@ -32,27 +42,27 @@ public class textController {
 	}
 	
 	@RequestMapping(value = "/writeText", params = "textId")
-	public ModelAndView writeText(@RequestParam("id") String id,
+	public ModelAndView writeText(@RequestParam("userId") String userId,
 			@RequestParam("textId") String textId) {
-		Text t = Text.getText(textId);
-		ObjectMapper mp = new ObjectMapper();
+		Text t = serviceText.getText(textId);
 		ModelAndView mv = new ModelAndView("writeText");
-		if (t.isAuthor(User.getUser( id))) {
+		if (t.isAuthor(serviceUser.getUser(userId))) {
 			mv.addObject("ID", textId);
 			mv.addObject("TITLE", t.getTitle());
-			try {
-				mv.addObject("INTRO", mp.writeValueAsString(t.getIntro()));
-				mv.addObject("CORPUS", mp.writeValueAsString(t.getCorpus()));
-				mv.addObject("CONC", mp.writeValueAsString(t.getConclusion()));
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			String[] macroSections = ControllerUtils.getMacroSectionsAsString(t);
+			
+			mv.addObject("INTRO", macroSections[0]);
+			mv.addObject("CORPUS", macroSections[1]);
+			mv.addObject("CONC", macroSections[2]);
+				
  
-			mv.addObject("U_ID", id);
+			mv.addObject("U_ID", userId);
 		}
 		else {
+			mv = new ModelAndView("home");
 			mv.addObject("ERROR", "Non sei l'autore di questo testo");
+			return mv = ControllerUtils.home();
 		}
 		return mv;
 	}
@@ -66,58 +76,64 @@ public class textController {
 			@RequestParam("conc") String conc,
 			@RequestParam("author") String userId
 			) {
-		ObjectMapper mapper = new ObjectMapper();
-		// TODO: CHANGE RETURNED PAGE
-		ModelAndView mv = new ModelAndView("login");
-		
-		ArrayList<String> introList = null;
-		ArrayList<String> corpusList = null;
-		ArrayList<String> concList = null;
+		ModelAndView mv = null;
 		try {
-			introList = mapper.readValue(intro, ArrayList.class);
-			corpusList = mapper.readValue(corpus, ArrayList.class);
-			concList = mapper.readValue(conc, ArrayList.class);
-		} catch (JsonProcessingException e) {
-			System.out.println("Errore: " + e.toString());
+			serviceText.saveText(id, title, intro, corpus, conc, userId);
+			mv = textLoad(id, userId);
 		}
-		if(id.equals("-1")) {
-			if(new Text(title, introList, corpusList,
-					concList, User.getUser(userId)).getId() == null) //check if this works
-				//TODO: return error as alert to the new returned page
-				System.out.println("Errore nel salvataggio del testo");
+		catch(MongoException | IllegalArgumentException e) {
+			mv = new ModelAndView("writeText");
+			mv.addObject("TITLE", title);
+			mv.addObject("U_ID", userId);
+			mv.addObject("INTRO", intro);
+			mv.addObject("CORPUS", corpus);
+			mv.addObject("CONC", conc);
+			mv.addObject("ERROR", e.getMessage());
+		} catch (AccessDeniedException e) {
+			mv = new ModelAndView("home");
+			mv.addObject("ERROR", e.getMessage());
+			mv = ControllerUtils.home();
+			return mv;
 		}
-		else {
-			User u = User.getUser(userId);
-			Text t = Text.getText(id);
-			try {
-				t.changeIntro(introList, u);
-				t.changeCorpus(corpusList, u);
-				t.changeConclusion(concList, u);
-			} catch (AccessDeniedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		
+		mv = textLoad(id, userId);
+
 		return mv;
 		
 	}
 	
-	@RequestMapping("/text")
+	@RequestMapping(value = "/text", params = "!content")
 	public ModelAndView textLoad(
-			@RequestParam("id") String textId,
-			@RequestParam("uid") String userId) {
-		Text t = Text.getText(textId);
+			@RequestParam("textId") String textId,
+			@RequestParam("userId") String userId) {
+		Text t = serviceText.getText(textId);
 		ObjectMapper mp = new ObjectMapper();
 		ModelAndView mv = new ModelAndView("readText");
-		mv.addObject("IS_AUTHOR", t.isAuthor(User.getUser(userId)));
+		User u = serviceUser.getUser(
+				userId);
+		if(u != null) {
+			mv.addObject("IS_AUTHOR", t.isAuthor(u));
+			mv.addObject("IS_ADMIN", u.isAdmin());
+		}
+		else
+		{
+			mv.addObject("IS_AUTHOR", false);
+		}
 		mv.addObject("TITLE", t.getTitle());
 		mv.addObject("ID", textId);
 		mv.addObject("U_ID", userId);
+		mv.addObject("IS_PRIVATE", t.isPrivate());
 
+		
 		try {
-			mv.addObject("INTRO", mp.writeValueAsString(t.getIntro()));
-			mv.addObject("CORPUS", mp.writeValueAsString(t.getCorpus()));
-			mv.addObject("CONC", mp.writeValueAsString(t.getConclusion()));
+			String[] macroSections = ControllerUtils.getMacroSectionsAsString(t);
+			
+			mv.addObject("INTRO", macroSections[0]);
+			mv.addObject("CORPUS", macroSections[1]);
+			mv.addObject("CONC", macroSections[2]);
+			mv.addObject("COMMENTS", mp.writeValueAsString(
+					ControllerUtils.formatComments(
+					t.getComments(), userId)));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -126,5 +142,114 @@ public class textController {
 		return mv;
 	}
 	
+	@RequestMapping(value = "/comment", params = "content")
+	public ResponseEntity<String> comment(
+			@RequestParam("textId") String textId,
+			@RequestParam("userId") String userId,
+			@RequestParam("content") String content) {
+		    
+		if(serviceComment.saveComment(userId, 
+				textId, content))
+			return new ResponseEntity<>("Commento aggiunto!",
+				HttpStatus.OK);
+		else
+			return new ResponseEntity<>(
+					"Errore nel salvataggio del commento",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	
+	
+	
+
+	
+	
+	
+	@RequestMapping("/deleteText")
+	public ModelAndView delete(
+			@RequestParam("textId") String textId,
+			@RequestParam("id") String userId) {
+		ModelAndView mv = null;
+		mv = ControllerUtils.home();
+		Text t = serviceText.getText(textId);
+		try {
+			serviceText.delete(serviceUser.getUser(userId), t);
+		} catch (AccessDeniedException e) {
+			mv.addObject("ERROR", 1);
+		}
+		return mv;
+	}
+	
+	
+	@RequestMapping("/reportText")
+	@ResponseBody
+	public ResponseEntity<String> reportText(
+			@RequestParam("idReported") String idReported,
+			@RequestParam("report") String report,
+			@RequestParam("idReporter") String idReporter) {
+		Text t = serviceText.getText(idReported);
+		if (serviceReport.sendReport(t, idReporter, report))
+			return new ResponseEntity<>("Segnalazione effettuata con successo",
+					HttpStatus.OK);
+		else
+			return new ResponseEntity<>(
+					"Errore nel salvataggio della segnalazione",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@RequestMapping("/changeVisibility")
+	@ResponseBody
+	public ResponseEntity<String> changeVisibility(
+			@RequestParam("userId") String userId,
+			@RequestParam("textId") String textId) {
+		Text t = serviceText.getText(textId); 
+		ResponseEntity<String> response = null;
+		try {
+			serviceText.setPrivate(t, serviceUser.
+					getUser(userId));
+			response = new ResponseEntity<>("Visibilità del testo cambiata!",
+					HttpStatus.OK);
+		}
+		catch(MongoException e) {
+			response = new ResponseEntity<>(
+					e.getMessage(),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return response;
+	}
+	
+	
+	@RequestMapping("/resolveReport")
+	@ResponseBody
+	public ResponseEntity<String> resolveReport(
+			@RequestParam("reportId") String idReport) {
+		if(serviceReport.resolveReport(idReport))
+			return new ResponseEntity<>("Segnalazione risolta!",
+					HttpStatus.OK);
+		else
+			return new ResponseEntity<>(
+					"Errore nella risoluzione della segnalazione",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	
+	
+	@RequestMapping("/deleteComment")
+	public ResponseEntity<String> deleteComment(
+			@RequestParam("commentId") String commentId,
+			@RequestParam("textId") String textId) {
+		Comment c = serviceComment.getComment(
+				textId,
+				commentId);
+		try{
+			serviceComment.deleteComment(textId, c);
+			return new ResponseEntity<>("Commento rimosso!",
+					HttpStatus.OK);
+		}catch(MongoException e) {
+			return new ResponseEntity<>(
+					"Errore nella rimozione del commento",
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+
 }

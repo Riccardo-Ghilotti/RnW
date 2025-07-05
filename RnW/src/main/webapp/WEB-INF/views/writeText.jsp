@@ -8,7 +8,7 @@
 <title>Write - RnW</title>
 </head>
 <body>
-	<form action="saveText" id="textBox" method="POST">
+	<form action="saveText" id="textBox" method="POST" accept-charset="UTF-8">
 		<h1>Titolo:</h1>
 		<input type="text" id="title" name="title" value="${TITLE}"><br>
 		<div id="writeBox"></div>
@@ -23,7 +23,7 @@
 	
 <script>
 	var id = "${ID}";
-	var u_id = "${U_ID}";
+	var u_id = sessionStorage.getItem("userId");
 	var titolo = "${TITLE}";
 	var intro = ${INTRO};
 	var corpus = ${CORPUS};
@@ -162,16 +162,23 @@
 		return false;
 		}
 	
-	if(error != "Non sei l'autore di questo testo")
-		window.onload = fillArea("intro");
-	else{
+	/*if(error == "Non sei l'autore di questo testo")
+		{
 		window.onload = function(){
-			document.innterHTML="";
 			alert(error);
 			var link = document.createElement("a");
+			link.setAttribute("href", "/RnW/home")
 			link.innerHTML = "Ritorna alla home";
-			link.setAttribute("href").value("localhost:8080/RnW/index.jsp")
-		}
+			document.body.innerHTML = "";
+			document.body.append(link);}}
+	else */
+	
+	if(typeof error == "" && error != ""){
+		alert(error);
+		window.onload = fillArea("intro");
+	}
+	else{
+		window.onload = fillArea("intro");
 	}
 	
 </script>

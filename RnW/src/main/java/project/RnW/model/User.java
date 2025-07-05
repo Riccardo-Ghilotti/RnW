@@ -1,12 +1,15 @@
 package project.RnW.model;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
+import java.rmi.AccessException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import org.bson.BsonObjectId;
@@ -20,109 +23,66 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
+import com.mongodb.MongoException;
+import com.mongodb.MongoWriteException;
+import com.mongodb.client.FindIterable;
 
 import java.sql.Statement;
+
+import project.RnW.mappers.mapperText;
+import project.RnW.mappers.mapperUser;
 import project.RnW.model.Database;
+import project.RnW.service.serviceText;
 
 public class User {
 	
-	private static ResourceBundle dbInfo = ResourceBundle.getBundle("dbconfig");
-	private String mail;
 	private ObjectId id;
 	private String name;
 	private boolean admin;
 	
-	public User(String mail, String name, String pwd, boolean admin) {
-		ObjectId id_temp = Database.insert(mail, name, pwd, admin);
-		if(id_temp != null) {
-			this.id= id_temp;
-			this.mail = mail;
-			this.name = name;
-			this.admin = admin;
-		}
-		else {
-			this.id = null;
-			System.err.println("Errore nella creazione dell'utente");
-		}
-	}
 	
-	public User(ObjectId id, String mail, String name, boolean admin) {
+	public User(ObjectId id, String name, boolean admin) {
 		this.id = id;
-		this.mail = mail;
 		this.name = name;
 		this.admin = admin;
 	}
 
-	public void changeName(String name) {
-		try {
-			Database.update(id, name, null);
-			this.name=name;
-		}catch(Exception e) {
-			System.out.println("ERROR: " + e);//TODO: fix exception
-		}
+	//is used to change the name of the account
+	public void changeName(String name) throws MongoException{
+		this.name=name;
 	}
 
-	public void changePassword(String pwd) {
-		pwd = Hashing.sha256().hashString(pwd, StandardCharsets.UTF_8).toString();
-		try {
-			Database.update(id, null, pwd);
-		}catch(Exception e) {
-			System.out.println("ERROR: e");//TODO: fix exception
-		}
-	}
 
+	//returns the id of the account
 	public ObjectId getId() {
 		return id;
 	}
 
+	//returns the name of the account
 	public String getName() {
 		return name;
 	}
 	
-
+	//returns true if the User is an administrator
 	public boolean isAdmin() {
 		return admin;
 	}
 	
-	public static User getUser(ObjectId id2) {
-		Document docUser = Database.getUser(id2);
-		if(docUser == null)
-			return null;
-		ObjectId id = docUser.getObjectId("_id");
-	    String mail = docUser.getString("mail");
-	    String name = docUser.getString("name");
-	    boolean admin = docUser.getBoolean("admin", false);
-	    
-	    return new User(id, mail, name, admin);
-	}
-	
-	public static User getUser(String id) {
-		ObjectId idObj = null;
-		if(ObjectId.isValid(id))
-			idObj = new ObjectId(id);
-		return getUser(idObj);
-	}
-	
+	//returns true if this User is equal to u
 	public boolean equals(User u) {
+		//since the ids are unique, checking those is enough
 		if(u.getId().equals(this.getId())) 
 			return true;
 		return false;
 	}
-	
-	public static User login(String mail, String password) {
-		Document docUser = Database.getUser(mail, password);
-		if(docUser == null)
-			return null;
-		ObjectId id = docUser.getObjectId("_id");
-	    String name = docUser.getString("name");
-	    boolean admin = docUser.getBoolean("admin", false);
-	    
-	    return new User(id, mail, name, admin);
+
+	//returns true if u is the owner of this account
+	public boolean isOwner(User u) {
+		return this.equals(u);
+		
 	}
 	
-	public boolean delete() {
-		return Database.deleteUser(id);
-	}
+	
 	
 }
 
