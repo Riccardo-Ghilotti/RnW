@@ -1,4 +1,4 @@
-package project.RnW.model;
+package project.RnW.db;
 
 
 import org.bson.Document;
@@ -23,7 +23,7 @@ public class Database {
 	
 	static {
         try {
-            client = MongoClients.create("mongodb://localhost:27017");
+           client = MongoClients.create("mongodb://localhost:27017");
             db = client.getDatabase("RnW");
             users = db.getCollection("Users");
             texts = db.getCollection("Texts");
