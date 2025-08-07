@@ -5,264 +5,139 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
 public class TextTest {
 	
-	@Test
-	public void testText() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertEquals(t.getTitle(), "Test");
-		assertEquals(t.getAuthor(), u);
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testCompose() {
-		ArrayList<String> s = new ArrayList<String>();
-		s.add("test1");
-		s.add("test2");
-		String s1 = Text.compose(s);
-		assertEquals("test1|test2",s1);
-	}
-	
-	@Test
-	public void testDelete() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
+	  private ObjectId id;
+	    private User author;
+	    private Text text;
 
-	@Test
-	public void testDeleteException() {
-		User u = new User("Elvis","Test", false);
-		User s = new User("Melvin","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertThrows(AccessDeniedException.class, () -> t.delete(s));
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-		s.delete();
-	}
+	    private ArrayList<String> intro;
+	    private ArrayList<String> corpus;
+	    private ArrayList<String> conclusion;
+	    private ArrayList<Comment> comments;
 
-	@Test
-	public void testChangeIntro() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		try {
-			t.changeIntro("p", u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	    @BeforeEach
+	    public void setup() {
+	        id = new ObjectId();
+	        author = new User(new ObjectId(), "elvis", false);
+	        intro = new ArrayList<String>();
+	        intro.add("Introduction");
+	        corpus = new ArrayList<String>();
+	        corpus.add("Body");
+	        conclusion = new ArrayList<String>();
+	        conclusion.add("Conclusion");
+	        comments = new ArrayList<Comment>();
+
+	        text = new Text(id,
+	        		"Text Title", 
+	        		intro, 
+	        		corpus, 
+	        		conclusion, 
+	        		comments, 
+	        		true, 
+	        		author);
+	    }
+
+	    @Test
+	    public void testTextConstructorAndGetters() {
+	        assertEquals(id, text.getId());
+	        assertEquals("Text Title", text.getTitle());
+	        assertEquals(intro, text.getIntro());
+	        assertEquals(corpus, text.getCorpus());
+	        assertEquals(conclusion, text.getConclusion());
+	        assertEquals(comments, text.getComments());
+	        assertEquals(author, text.getAuthor());
+	        assertTrue(text.isPrivate());
+	    }
+
+	    @Test
+	    public void testEquals() {
+	        Text test = new Text(id, 
+	        		"test", 
+	        		intro, 
+	        		corpus, 
+	        		conclusion, 
+	        		comments, 
+	        		false, 
+	        		author);
+	        
+	        assertTrue(text.equals(test));
+	    }
+
+
+	    @Test
+	    public void testSetPrivate() throws AccessDeniedException {
+	        text.setPrivate(false, author);
+	        
+	        assertFalse(text.isPrivate());
+	    }
+	    
+	    @Test
+	    public void testSetPrivateException() throws AccessDeniedException {
+	        assertThrows(AccessDeniedException.class , () -> 
+	        text.setPrivate(false, new User(new ObjectId(), "melvin", false)));
+	    }
+	    
+		@Test
+		public void testChangeIntro() throws AccessDeniedException {
+			ArrayList<String> i = new ArrayList<String>();
+			i.add("test");
+			
+			text.changeIntro(i, author);
+			
+			assertEquals(i, text.getIntro());
 		}
-		assertEquals("p", t.getIntro());
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		@Test
+		public void testChangeIntroException() {
+			User s = new User(new ObjectId(), "test", false);
+			
+			assertThrows(AccessDeniedException.class, () -> 
+				text.changeIntro(new ArrayList<String>(), s));
 		}
-		u.delete();
+		
+		
+		@Test
+		public void testChangeCorpus() throws AccessDeniedException {
+			ArrayList<String> i = new ArrayList<String>();
+			i.add("test");
+			
+			text.changeCorpus(i, author);
+			
+			assertEquals(text.getCorpus(), i);
+		}
+		
+		@Test
+		public void testChangeCorpusException() {
+			User s = new User(new ObjectId(), "test", false);
+			
+			assertThrows(AccessDeniedException.class,() -> 
+				text.changeCorpus(new ArrayList<String>(), s));
+		}
+		
+		@Test
+		public void testChangeConclusion() throws AccessDeniedException {
+			ArrayList<String> i = new ArrayList<String>();
+			i.add("test");
+	
+			text.changeConclusion(i, author);
+			
+			assertEquals(text.getConclusion(), i);
+		}
+		
+		@Test
+		public void testChangeConclusionException() {
+			User s = new User(new ObjectId(), "test", false);
+			
+			assertThrows(AccessDeniedException.class, () -> 
+			text.changeConclusion(new ArrayList<String>(), s));
+		}
+		
+		
+		
 	}
-	
-	@Test
-	public void testChangeIntroException() {
-		User u = new User("Elvis","Test", false);
-		User s = new User("Melvin","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertThrows(AccessDeniedException.class, () -> t.changeIntro("p", s));
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-		s.delete();
-	}
-	
-	
-	@Test
-	public void testChangeCorpus() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		try {
-			t.changeCorpus("p", u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertEquals(t.getCorpus(), "p");
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testChangeCorpusException() {
-		User u = new User("Elvis","Test", false);
-		User s = new User("Melvin","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertThrows(AccessDeniedException.class, () -> t.changeCorpus("p", s));
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-		s.delete();
-	}
-	
-	@Test
-	public void testChangeConclusion() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		try {
-			t.changeConclusion("p", u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		assertEquals(t.getConclusion(), "p");
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testChangeConclusionException() {
-		User u = new User("Elvis","Test", false);
-		User s = new User("Melvin","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertThrows(AccessDeniedException.class, () -> t.changeConclusion("p", s));
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-		s.delete();
-	}
-	
-	
-	@Test
-	public void testGetAuthor() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertEquals(u, t.getAuthor());
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testGetTitle() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertEquals("Test", t.getTitle());
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testGetIntro() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertEquals("t", t.getIntro());
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testGetCorpus() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertEquals("t", t.getCorpus());
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	@Test
-	public void testGetConclusion() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("Test","t","t","t", u);
-		assertEquals("t", t.getConclusion());
-		try {
-			t.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		u.delete();
-	}
-	
-	
-	@Test
-	public void testGetAllTextsFromAuthor() {
-		User u = new User("Elvis","Test", false);
-		Text t = new Text("text1","t","t","t", u);
-		Text t1 = new Text("text2","t","t","t", u);
-		Text t2 = new Text("text3","t","t","t", u);
-		ArrayList<String[]> textNames = Text.getAllTextsFromAuthor(u);
-		assertEquals(t.getTitle(), textNames.get(0)[1]);
-		assertEquals(t1.getTitle(), textNames.get(1)[1]);
-		assertEquals(t2.getTitle(), textNames.get(2)[1]);
-		u.delete();
-		try {
-			t.delete(u);
-			t1.delete(u);
-			t2.delete(u);
-		} catch (AccessDeniedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-}
