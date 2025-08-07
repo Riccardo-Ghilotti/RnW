@@ -2,14 +2,15 @@ package project.RnW.controller;
 
 import java.util.ArrayList;
 
-import org.bson.Document;
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.mongodb.client.FindIterable;
+import com.mongodb.MongoException;
 
 import project.RnW.model.Comment;
 import project.RnW.model.Report;
@@ -21,21 +22,23 @@ import project.RnW.service.serviceUser;
 
 public class ControllerUtils {
 
+	//This class is formed by useful methods for controllers.
+	//These methods contain formatting logic, or are a part of the logic used by
+	//multiple methods.
 	
 	
-	public static ModelAndView setupUserPage(User u, ModelAndView mv) {
+	public static ModelAndView setupUserPage(User u, ModelAndView mv, boolean isOwner) 
+			throws AccountNotFoundException, MongoException {
 		ObjectMapper mp = new ObjectMapper();
 		mv.addObject("NAME", u.getName());
 		mv.addObject("ID", u.getId());
-		ArrayList<String[]> listOfTexts = getAllTextsFromAuthor(u);
+		ArrayList<String[]> listOfTexts = getAllTextsFromAuthor(u, isOwner);
 		String json_id_title = setupTexts(listOfTexts);
 		try {
 				if(json_id_title == null)
 					return mv.addObject("TEXTS", mp.writeValueAsString(null));
 				else
-					
 						mv.addObject("TEXTS", json_id_title);
-					
 				return mv;
 				}
 		catch (JsonProcessingException e) {
@@ -47,24 +50,27 @@ public class ControllerUtils {
 
 
 
-	public static ModelAndView home() {
+	public static ModelAndView setupHome(ModelAndView mv) throws MongoException {
 		ArrayList<String[]> listOfTexts = getAllTexts();
 		String json_id_title = setupTexts(listOfTexts);
-		ModelAndView mv = new ModelAndView("home");
 		if(json_id_title == null)
-			mv.addObject("TEXTS", "Nessun testo è ancora stato scritto");
+			mv.addObject("TEXTS", "null");
 		else
 			mv.addObject("TEXTS", json_id_title);
-		mv.addObject("ERROR", 0);
 		return mv;
 		
 	}
 	
+	//This method returns a json string containing id and title of the texts
+	//in listOfTexts.
+	//listOfTexts is a list of strings arrays "id_title" where:
+	// - id_title[0] --> contains the id of a text.
+	// - id_title[1] --> contains the title of the text referenced by id_title[0].
 	public static String setupTexts(ArrayList<String[]> listOfTexts) {
 		if(!listOfTexts.isEmpty()) {
 			String json_id_title = "[";
 			for(String[] id_title : listOfTexts) {
-				json_id_title += "{\"id\" : \"" + id_title[0] + 
+				json_id_title += "{\"id\": \"" + id_title[0] + 
 						"\",\"title\": \""
 						+ id_title[1]
 						+ "\"},";
@@ -97,6 +103,10 @@ public class ControllerUtils {
 		
 	}
 	
+	//The ArrayList that contains the formatted Comments is formed like this:
+	//commentInfo[0] --> id of the comment.
+	//commentInfo[1] --> name of the commenter.
+	//commentInfo[2] --> content of the comment.
 	public static ArrayList<ArrayList<String>> formatComments(
 			ArrayList<Comment> comments,
 			String userId) {
@@ -112,8 +122,9 @@ public class ControllerUtils {
 		return commentsInfo;
 	}
 	
-	public static ArrayList<String[]> getAllTextsFromAuthor(User u) {
-		ArrayList<Text> textList = serviceText.getAllTextsFromAuthor(u.getId());
+	public static ArrayList<String[]> getAllTextsFromAuthor(User u, boolean isOwner)
+			throws AccountNotFoundException, MongoException {
+		ArrayList<Text> textList = serviceText.getAllTextsFromAuthor(u.getId(), isOwner);
 		ArrayList<String[]> infoTextList = new ArrayList<>();
 		for (Text t : textList) {
 			String[] temp = {t.getId().toString(),
@@ -124,7 +135,7 @@ public class ControllerUtils {
 	}
 
 
-
+	//This method returns a list of userIds and respective names.
 	public static ArrayList<String[]> getUsersIds(){
 		ArrayList<User> userList = 
 				serviceUser.getAllUsers();
@@ -138,8 +149,9 @@ public class ControllerUtils {
 	}
 
 
-
-	public static ArrayList<String[]> getAllTexts() {
+	//this method returns all non-private texts that are present in the database
+	//in the form of textId and respective title.
+	public static ArrayList<String[]> getAllTexts() throws MongoException {
 		ArrayList<Text> textList = serviceText.getAllTexts();
 		ArrayList<String[]> infoTextList = new ArrayList<>();
 		for (Text t : textList) {
@@ -151,8 +163,16 @@ public class ControllerUtils {
 	}
 
 
-
-	public static ArrayList<String[]> getReports() {
+	//The ArrayList that contains the Reports is formed like this:
+	//r[0] --> id of the text.
+	//r[1] --> title of the text.
+	//r[2] --> id of the author of the text.
+	//r[3] --> name of the author of the text.
+	//r[4] --> id of the reporter.
+	//r[5] --> name of the reporter.
+	//r[6] --> content of the report.
+	//r[7] --> id of the report.
+	public static ArrayList<String[]> getReports() throws AccountNotFoundException, MongoException {
 		ArrayList<Report> reportsList = serviceReport.getReports();
 		ArrayList<String[]> infoReportsList = new ArrayList<String[]>();
 		for(Report r : reportsList) {
@@ -161,7 +181,7 @@ public class ControllerUtils {
 					t.getTitle(),
 					t.getAuthor().getId().toString(),
 					t.getAuthor().getName(),
-					r.getReporter().toString(),
+					r.getReporter().getId().toString(),
 					r.getReporter().getName(),
 					r.getContent(),
 					r.getId().toString()};
