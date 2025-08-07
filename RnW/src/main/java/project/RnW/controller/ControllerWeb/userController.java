@@ -94,7 +94,7 @@ public class userController {
 				User u = serviceUser.getUser(userId);
 				isOwner = owner.isOwner(u);
 				isAdmin = u.isAdmin();
-			}catch(AccountNotFoundException e) {
+			}catch(AccountNotFoundException | InvalidIdException e) {
 				//This only triggers if the user isn't logged in
 			}
 			
