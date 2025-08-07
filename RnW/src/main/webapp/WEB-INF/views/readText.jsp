@@ -65,7 +65,8 @@ position:absolute; bottom:3%; right:1%; left:1%
     </div>
     </c:if>
 	<div class="row">
-	 
+	 <div class="col-3" id="authorButton">
+	 </div>
  	</div>
 	
 	<c:if test="${U_ID != null}">
@@ -83,7 +84,7 @@ position:absolute; bottom:3%; right:1%; left:1%
     </c:if>
     
     <div id="commentBox" class="row">
-   
+   	
     
     </div>
     
@@ -273,9 +274,31 @@ position:absolute; bottom:3%; right:1%; left:1%
 			textBox.appendChild(concBox);
 		}
 		
-		console.log(comments);
-		
 		printComments();
+		
+		var authorButton = document.getElementById("authorButton");
+		
+		var nameBox = document.createElement("form");
+		nameBox.setAttribute("style", "margin-top:2%")
+		nameBox.setAttribute("action","/RnW/user");
+		var inputUserId = document.createElement("input");
+		inputUserId.setAttribute("type", "hidden");
+		inputUserId.setAttribute("name", "userId");
+		inputUserId.setAttribute("value", sessionStorage.getItem("userId"));
+		nameBox.append(inputUserId);
+		
+		
+		var inputCommId = document.createElement("input");
+		inputCommId.setAttribute("type", "hidden");
+		inputCommId.setAttribute("name", "textId");
+		inputCommId.setAttribute("value", "${ID}");
+		nameBox.append(inputCommId);
+		
+		var buttonName = document.createElement("input");
+		buttonName.setAttribute("type","submit");
+		buttonName.setAttribute("value", "Collegamento al profilo dell'autore");
+		nameBox.append(buttonName);
+		authorButton.append(nameBox);
 	}
 	
 	

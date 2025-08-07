@@ -19,6 +19,7 @@ import project.RnW.controller.ControllerUtils;
 import project.RnW.mappers.mapperComment.CommentNotFoundException;
 import project.RnW.model.User;
 import project.RnW.service.serviceComment;
+import project.RnW.service.serviceText;
 import project.RnW.service.serviceUser;
 import project.RnW.service.serviceUser.DifferentPasswordsException;
 import project.RnW.service.serviceUser.InvalidIdException;
@@ -78,16 +79,16 @@ public class userController {
 	
 	
 
-	//this method allows for users to check a user profiles.
+	//this method allows for users to check a user profile.
 	//whether it's theirs or some other user's, the returned object changes.
 	@RequestMapping(value = "/user", params = "ownerId")
 	public ModelAndView checkProfile(
 			@RequestParam("userId") String userId,
-			@RequestParam("ownerId") String ownerid) 
+			@RequestParam("ownerId") String ownerId) 
 					throws AccountNotFoundException, InvalidIdException {
 			
 			
-			User owner = serviceUser.getUser(ownerid);
+			User owner = serviceUser.getUser(ownerId);
 			boolean isOwner = false;
 			boolean isAdmin = false;
 			try {
@@ -106,6 +107,19 @@ public class userController {
 			
 			return ControllerUtils.setupUserPage(owner, mv, isOwner);
 	}
+	
+	//this method keeps hidden the author's Id and allows other users to visit their profile.
+	@RequestMapping(value="/user", params = "textId")
+	 public ModelAndView checkProfileOfAuthor(
+			 @RequestParam("userId") String userId,
+			 @RequestParam("textId") String textId) 
+					 throws AccountNotFoundException, 
+					 MongoException, 
+					 InvalidIdException {
+				
+		User author = serviceText.getText(textId).getAuthor();
+		return checkProfile(userId, author.getId().toString());
+	 }
 	
 	
 	//this method loads the admin's control page, where they can see reports
