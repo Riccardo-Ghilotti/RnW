@@ -239,8 +239,8 @@ public class UserIT {
 	@Test
 	public void testCheckProfileMalformedIdException() throws Exception{
 		MvcResult result = mockMvc.perform(post("/user")
-				.param("userId", "id sbagliato")
-				.param("ownerId", userId.toString()))
+				.param("userId", userId.toString())
+				.param("ownerId", "wrong id"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("home")).andReturn();
 		
