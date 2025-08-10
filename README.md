@@ -27,8 +27,8 @@ To grant some freedom to the end-user, every macro-section can be split into mul
 ## Installation
 ### Prerequisites
 Download and install:
-- [Spring Tool Suite 4](https://spring.io/tools).
-- [MongoDB Community Edition](https://www.mongodb.com/try/download/community).
+- [Spring Tool Suite 4](https://spring.io/tools), specifically the eclipse version.
+- [MongoDB Server Community Edition](https://www.mongodb.com/try/download/community).
 - [MongoDB Shell](https://www.mongodb.com/try/download/shell).
 
 ### Setup
