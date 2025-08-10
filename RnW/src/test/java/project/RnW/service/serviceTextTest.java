@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.security.auth.login.AccountNotFoundException;
 
@@ -78,9 +78,9 @@ public class serviceTextTest {
     		
     		utilitiesT.when(() -> mapperText.insert(
     				eq(title), 
-    				eq(new ArrayList<>(List.of("Introduction"))),
-			        eq(new ArrayList<>(List.of("Corpus"))),
-			        eq(new ArrayList<>(List.of("Conclusion"))), 
+    				eq(new ArrayList<>(Arrays.asList("Introduction"))),
+			        eq(new ArrayList<>(Arrays.asList("Corpus"))),
+			        eq(new ArrayList<>(Arrays.asList("Conclusion"))), 
     				eq(true), 
     				eq(author))).thenReturn(textId);
     		utilitiesU.when(() -> mapperUser.getUser(author.getId()))
@@ -111,9 +111,9 @@ public class serviceTextTest {
     		
     		utilitiesT.when(() -> mapperText.insert(
     				eq(title), 
-    				eq(new ArrayList<>(List.of("Introduction"))),
-			        eq(new ArrayList<>(List.of("Corpus"))),
-			        eq(new ArrayList<>(List.of("Conclusion"))), 
+    				eq(new ArrayList<>(Arrays.asList("Introduction"))),
+			        eq(new ArrayList<>(Arrays.asList("Corpus"))),
+			        eq(new ArrayList<>(Arrays.asList("Conclusion"))), 
     				eq(true), 
     				eq(author))).thenReturn(null);
     		
@@ -136,9 +136,9 @@ public class serviceTextTest {
 
         	utilitiesT.when(() -> mapperText.update(
                     eq(textId),
-                    eq(new ArrayList<>(List.of("Introduction"))),
-                    eq(new ArrayList<>(List.of("Corpus"))),
-                    eq(new ArrayList<>(List.of("Conclusion")))
+                    eq(new ArrayList<>(Arrays.asList("Introduction"))),
+                    eq(new ArrayList<>(Arrays.asList("Corpus"))),
+                    eq(new ArrayList<>(Arrays.asList("Conclusion")))
             )).thenReturn(true);
         	utilitiesT.when(() -> mapperText.getText(textId)).thenReturn(text);
             utilitiesU.when(() -> mapperUser.getUser(author.getId()))
@@ -186,9 +186,9 @@ public class serviceTextTest {
     		
     		utilitiesT.when(() -> mapperText.update(
                     eq(textId),
-                    eq(new ArrayList<>(List.of("Introduction"))),
-                    eq(new ArrayList<>(List.of("Corpus"))),
-                    eq(new ArrayList<>(List.of("Conclusion")))
+                    eq(new ArrayList<>(Arrays.asList("Introduction"))),
+                    eq(new ArrayList<>(Arrays.asList("Corpus"))),
+                    eq(new ArrayList<>(Arrays.asList("Conclusion")))
             )).thenReturn(false);
     		utilitiesT.when(() -> mapperText.getText(textId)).thenReturn(text);
     		utilitiesU.when(() -> mapperUser.getUser(author.getId()))
