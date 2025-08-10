@@ -40,7 +40,7 @@ Download and install:
 6. Press **Download and Install** or select the installation path of your existing Apache Tomcat v9.0.
 7. Install **Eclipse Enterprise Java and Web Developer Tools** from **Eclipse Marketplace**.
 8. Right click on the project, then press `Properties > Project Facets`, enable project facets and ensure that **Dynamic Web Module**, **Java** and **JavaScript** are ticked. The respective versions should be: 4.0, 1.8 and 1.0.
-9. Now click on `Project > Properties > Java Compiler`. Tick `Enable project specific settings > Use compliance from execution environment 'JavaSE-1.8' on the 'Java Build Path'`.
+9. Now click on `Project > Properties > Java > Java Compiler`. Tick `Enable project specific settings > Use compliance from execution environment 'JavaSE-1.8' on the 'Java Build Path'`.
 
 ### Setup for tests
 A JRE should be present in the Spring Tool Suite installation folder. In this section we are going to set it up to run our tests.
