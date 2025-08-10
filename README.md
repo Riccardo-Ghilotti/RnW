@@ -52,6 +52,6 @@ A JRE should be present in the Spring Tool Suite installation folder. In this se
 
 ## Usage
 
-To start the webapp simply right click on the project, select `Run As > Run on Server`.
+To start the webapp simply right click on the project, select `Run As > Run on Server`. Now you can open your browser and go to `localhost:8080/RnW/index.jsp`.
 
 To run the tests, select `Run As` and choose the newly added configuration.
