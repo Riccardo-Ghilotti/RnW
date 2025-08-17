@@ -46,7 +46,7 @@ public class textController {
 		return mv;
 	}
 	
-	//method called when the user wants to modify an old page.
+	//method called when the user wants to modify an old text.
 	@RequestMapping(value = "/writeText", params = "textId")
 	public ModelAndView writeText(@RequestParam("userId") String userId,
 			@RequestParam("textId") String textId) 
