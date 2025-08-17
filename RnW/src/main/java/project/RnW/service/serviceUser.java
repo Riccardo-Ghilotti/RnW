@@ -21,6 +21,8 @@ import project.RnW.service.serviceText.TextNotDeletedException;
 
 public class serviceUser {
 	
+	//this class handles business logic for User objects.
+
 	public static User createUser(
 			String mail,String name, String pwd, boolean admin) 
 					throws MongoException, AttributeInUseException, AccountLockedException{
