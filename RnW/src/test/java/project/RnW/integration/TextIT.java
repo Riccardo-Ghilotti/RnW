@@ -226,7 +226,7 @@ public class TextIT {
 	    
 	    
 	    //this test will also cover most exceptions, since the method catches
-	    //all exceptions that are subclasses of Exception and follows this behavior.
+	    //all exceptions that are subclasses of Exception, except AccessDeniedException, and follows this behavior.
 	    @Test
 	    public void textSentEmptySections() throws Exception {
 	    	
