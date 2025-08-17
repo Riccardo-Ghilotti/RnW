@@ -23,6 +23,7 @@ public class serviceUser {
 	
 	//this class handles business logic for User objects.
 
+	//called to create a User in the database and return it.
 	public static User createUser(
 			String mail,String name, String pwd, boolean admin) 
 					throws MongoException, AttributeInUseException, AccountLockedException{
