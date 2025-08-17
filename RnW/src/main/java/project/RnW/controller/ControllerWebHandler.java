@@ -41,8 +41,6 @@ public class ControllerWebHandler {
 		return mv;
 	}
 	
-	// new ObjectId(String str) returns IllegalArgumentException if str
-	// isn't a valid hexString
 	@ExceptionHandler(InvalidIdException.class)
 	public ModelAndView handleArgumentException(InvalidIdException ex){
 		ModelAndView mv = new ModelAndView("home");
