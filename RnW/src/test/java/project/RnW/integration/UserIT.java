@@ -235,7 +235,6 @@ public class UserIT {
 		
 	}
 
-	//This test has been done to check if MalformedIdException is handled by the controllers.
 	@Test
 	public void testCheckProfileMalformedIdException() throws Exception{
 		MvcResult result = mockMvc.perform(post("/user")
