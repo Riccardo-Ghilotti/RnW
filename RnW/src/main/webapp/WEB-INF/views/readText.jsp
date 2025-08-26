@@ -312,7 +312,7 @@ position:absolute; bottom:3%; right:1%; left:1%
 				var responseText = xhttp.responseText.split("#");
 				alert(responseText[0]);
 				printComment(responseText[1], "${U_NAME}", content);
-				comments.push([responseText[1], "$[U_NAME]", content]);
+				comments.push([responseText[1], "${U_NAME}", content]);
 			}
 		};
 			xhttp.open("POST", "/RnW/comment");
