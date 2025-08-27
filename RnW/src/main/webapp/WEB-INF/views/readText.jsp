@@ -187,7 +187,6 @@ position:absolute; bottom:3%; right:1%; left:1%
 		nameBox.append(buttonName);
 		
 		cBox.append(nameBox);
-		console.log(cBox);
 		
 		var contentBox = document.createElement("p");
 		contentBox.innerHTML = "Commenta: " + commentContent;
@@ -213,7 +212,6 @@ position:absolute; bottom:3%; right:1%; left:1%
 	
 	window.onload = function(){
 		var visButton = document.getElementById("visibilityButton");
-		console.log(visButton);
 		if(sessionData.getItem("userId") != null && visButton != null)
 			changeVisibilityButton();
 		
@@ -329,7 +327,6 @@ position:absolute; bottom:3%; right:1%; left:1%
 		var reportContent = prompt("Perchè vuoi segnalare questo testo?");
 		const xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function(){
-			console.log(xhttp.responseText);
 			if(xhttp.readyState == 4){
 				alert(xhttp.responseText);
 			}
@@ -346,7 +343,6 @@ position:absolute; bottom:3%; right:1%; left:1%
 		idDeleted = "${ID}";
 		const xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function(){
-			console.log(xhttp.responeText);
 			if(xhttp.readyState == 4){
 				alert(xhttp.responseText);
 				comments = comments.filter(arr => !arr.includes(commentId));

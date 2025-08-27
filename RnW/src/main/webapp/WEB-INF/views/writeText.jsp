@@ -91,7 +91,6 @@ padding-top:2%}
 	
 	function textToVariable(){
 		objects = document.getElementsByClassName("currentBox");
-		console.log(objects);
 		y = [];
 		for(let i = 0; i < objects.length; i+=0){
 			if(objects[i].value != "")

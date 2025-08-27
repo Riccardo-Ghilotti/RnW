@@ -67,9 +67,7 @@ padding-bottom:2%;}</style>
 		}
 		else
 			document.getElementById("box").innerHTML = "Nessun testo è ancora stato scritto";
-		
-		console.log(u_id);
-		
+				
 		if(u_id != null){
 			var params = [{"name": "userId", "value":u_id},
 				{"name":"ownerId", "value":u_id}];
