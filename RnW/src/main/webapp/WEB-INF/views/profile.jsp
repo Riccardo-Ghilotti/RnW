@@ -57,9 +57,16 @@ padding-bottom:1%;}
 			
 			<div class="row">
 			<c:if test="${IS_ADMIN or IS_OWNER}">
+			
 				<div class="col-3"  align="left">
+					<button class="btn btn-danger" onclick="deleteAccount()">Cancella l'account!</button>
+				</div>
+				
+				<div class="col-3"  align="center">
 					<button class="btn btn-success" onclick="changeSetting(0)">Cambia nome!</button>
 				</div>
+				
+				
 			</c:if>
 			<c:if test="${IS_OWNER}">
 				<div class="col-3" align="center">
@@ -173,6 +180,24 @@ padding-bottom:1%;}
 		}
 	}
 	
+	
+	function deleteAccount(){
+		const xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function(){
+			if(this.readyState == 4){
+				alert(xhttp.responseText);
+				}
+			if(this.readyState == 4 && this.status == 200){
+				sessionStorage.removeItem("userId")
+				document.location.href = "/RnW/index.jsp";
+			}
+		}
+		
+		xhttp.open("POST", "/RnW/deleteUser")
+		xhttp.setRequestHeader("Content-type", 
+				"application/x-www-form-urlencoded");
+  		xhttp.send("userId=${ID}");
+	}
 	
 </script>
 </html>
