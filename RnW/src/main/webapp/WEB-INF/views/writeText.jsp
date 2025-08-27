@@ -19,7 +19,7 @@ padding-top:2%}
 	<form action="saveText" id="textBox" method="POST" accept-charset="UTF-8">
 		<h1>Titolo:</h1>
 		<input type="text" id="title" name="title" value="${TITLE}" class="form-control"><br>
-		<c:if test="${not empty TITLE}"> <script>document.getElementById("title").readonly="readonly"</script></c:if>
+		<c:if test="${not empty TITLE}"> <script>document.getElementById("title").readOnly ="true"</script></c:if>
 		<h4 id="sectionText"></h4>
 		<div id="writeBox"></div>
 		<div class="row">
