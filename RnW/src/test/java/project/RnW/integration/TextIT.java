@@ -153,7 +153,7 @@ public class TextIT {
 	    				.param("userId", userId2.toString())
 	    				.param("textId", textId.toString()))
 	    				.andExpect(status().isOk())
-	    				.andExpect(view().name("home")).andReturn();
+	    				.andExpect(view().name("login")).andReturn();
 	        	
 	        	
 	        	
@@ -171,7 +171,7 @@ public class TextIT {
     				.param("userId", userId.toString())
     				.param("textId", textId2.toString()))
     				.andExpect(status().isOk())
-    				.andExpect(view().name("home")).andReturn();
+    				.andExpect(view().name("login")).andReturn();
         	
         	
         	
@@ -266,7 +266,7 @@ public class TextIT {
 	    			.param("corpus", "[\"Body of the text\"]")
 	    			.param("conc", "[\"Conc\"]"))
     				.andExpect(status().isOk())
-    				.andExpect(view().name("home")).andReturn();
+    				.andExpect(view().name("login")).andReturn();
 	    	
 	    	
 	    	ModelAndView mv = result.getModelAndView();
@@ -329,7 +329,7 @@ public class TextIT {
     				.param("userId", userId.toString())
     				.param("textId", textId2.toString()))
     				.andExpect(status().isOk())
-    				.andExpect(view().name("home")).andReturn();
+    				.andExpect(view().name("login")).andReturn();
     		
 	    	ModelAndView mv = result.getModelAndView();
     		Map<String, Object> model = mv.getModel();
@@ -355,7 +355,7 @@ public class TextIT {
     				.param("id", userId2.toString())
     				.param("textId", textId.toString()))
     				.andExpect(status().isOk())
-    				.andExpect(view().name("home")).andReturn();
+    				.andExpect(view().name("login")).andReturn();
 	    	
 	    	ModelAndView mv = result.getModelAndView();
 	    	
@@ -369,7 +369,7 @@ public class TextIT {
     				.param("id", userId.toString())
     				.param("textId", new ObjectId().toString()))
     				.andExpect(status().isOk())
-    				.andExpect(view().name("home")).andReturn();
+    				.andExpect(view().name("login")).andReturn();
 	    	
 	    	ModelAndView mv = result.getModelAndView();
 	    	
@@ -397,7 +397,7 @@ public class TextIT {
 	    				.param("id", userId.toString())
 	    				.param("textId", textId.toString()))
 	    				.andExpect(status().isOk())
-	    				.andExpect(view().name("home")).andReturn();
+	    				.andExpect(view().name("login")).andReturn();
 		    	
 		    	ModelAndView mv = result.getModelAndView();
 		    	

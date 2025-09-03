@@ -125,7 +125,7 @@ public class UserIT {
 					.param("password", "test")
 					.param("rPassword", "test"))
 					.andExpect(status().isOk())
-					.andExpect(view().name("home")).andReturn();
+					.andExpect(view().name("login")).andReturn();
 	    	
 			ModelAndView userRegistered = result.getModelAndView();
 			Map<String, Object> model = userRegistered.getModel();
@@ -241,7 +241,7 @@ public class UserIT {
 				.param("userId", userId.toString())
 				.param("ownerId", "wrong id"))
 				.andExpect(status().isOk())
-				.andExpect(view().name("home")).andReturn();
+				.andExpect(view().name("login")).andReturn();
 		
 		ModelAndView mv = result.getModelAndView();
 		Map<String, Object> model = mv.getModel();
@@ -255,7 +255,7 @@ public class UserIT {
 				.param("userId", userId.toString())
 				.param("ownerId", new ObjectId().toString()))
 				.andExpect(status().isOk())
-				.andExpect(view().name("home")).andReturn();
+				.andExpect(view().name("login")).andReturn();
 		
 		ModelAndView mv = result.getModelAndView();
 		Map<String, Object> model = mv.getModel();
@@ -297,7 +297,7 @@ public class UserIT {
 		MvcResult result = mockMvc.perform(post("/adminView")
 				.param("userId", userId.toString()))
 				.andExpect(status().isOk())
-				.andExpect(view().name("home")).andReturn();
+				.andExpect(view().name("login")).andReturn();
 		
 		ModelAndView mv = result.getModelAndView();
 		Map<String, Object> model = mv.getModel();
@@ -312,12 +312,12 @@ public class UserIT {
 		MvcResult result = mockMvc.perform(post("/adminView")
 				.param("userId", new ObjectId().toString()))
 				.andExpect(status().isOk())
-				.andExpect(view().name("home")).andReturn();
+				.andExpect(view().name("login")).andReturn();
 		
 		ModelAndView mv = result.getModelAndView();
 		Map<String, Object> model = mv.getModel();
 		
-		assertEquals(mv.getViewName(), "home");
+		assertEquals(mv.getViewName(), "login");
 		assertEquals("Impossibile trovare l'account", model.get("ERROR"));
 	}
 	

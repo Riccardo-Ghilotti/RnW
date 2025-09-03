@@ -16,6 +16,8 @@ import org.mockito.Mockito;
 import com.google.common.hash.Hashing;
 import com.mongodb.MongoException;
 
+import project.RnW.mappers.mapperComment;
+import project.RnW.mappers.mapperReport;
 import project.RnW.mappers.mapperText;
 import project.RnW.mappers.mapperUser;
 import project.RnW.model.Text;
@@ -117,10 +119,13 @@ public class serviceUserTest {
 	public void testDeleteErrorMongo() {
 		ObjectId userId = new ObjectId();
         try (MockedStatic<mapperUser> utilities = Mockito.mockStatic(mapperUser.class)
-        		; MockedStatic<mapperText> utiliteisT = Mockito.mockStatic(mapperText.class)) {
+        		; MockedStatic<mapperText> utilitiesT = Mockito.mockStatic(mapperText.class)
+        		; MockedStatic<mapperComment> utilitiesC = Mockito.mockStatic(mapperComment.class)
+        		; MockedStatic<mapperReport> utilitiesR = Mockito.mockStatic(mapperReport.class)) {
         	
         	utilities.when(() -> mapperText.getAllTextsFromAuthor(userId, false))
         	.thenReturn(new ArrayList<Text>());
+        	utilitiesR.when(() -> mapperReport.deleteReportsOfUser(userId) ).thenReturn(true);
         	utilities.when(() -> mapperUser.delete(userId))
         	.thenReturn(false);
         	
