@@ -13,6 +13,8 @@ import org.bson.types.ObjectId;
 import com.google.common.hash.Hashing;
 import com.mongodb.MongoException;
 
+import project.RnW.mappers.mapperComment;
+import project.RnW.mappers.mapperReport;
 import project.RnW.mappers.mapperText;
 import project.RnW.mappers.mapperUser;
 import project.RnW.model.Text;
@@ -111,7 +113,8 @@ public class serviceUser {
 				e.printStackTrace();
 			}
 		}
-		if(!mapperUser.delete(u.getId()))
+		mapperComment.deleteFromUser(u.getId());
+		if(!(mapperReport.deleteReportsOfUser(u.getId()) && mapperUser.delete(u.getId())))
 			throw new UserDeletionException("User was not deleted from the database");
 	}
 	

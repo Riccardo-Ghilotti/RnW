@@ -64,4 +64,10 @@ public class mapperReport {
 				deleteMany(eq("id_reported", id)).
 				getDeletedCount() == toBeDeleted;
 	}
+	
+	public static boolean deleteReportsOfUser(ObjectId id) throws MongoException {
+		long toBeDeleted = Database.reports.countDocuments(
+				eq("id_reporter", id));
+		return Database.reports.deleteMany(eq("id_reporter", id)).getDeletedCount() == toBeDeleted;
+	}
 }

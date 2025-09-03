@@ -85,6 +85,12 @@ public class mapperComment {
 				eq("_id", commentId))).getModifiedCount() > 0;
 	}
 	
+	public static void deleteFromUser(ObjectId userId) 
+	throws MongoException{
+		Database.texts.updateMany(new Document(), pull("comments",
+				eq("u_id", userId)));
+	}
+	
 	public static class CommentNotFoundException extends Exception{
 		public CommentNotFoundException(String msg) {
 			super(msg);
