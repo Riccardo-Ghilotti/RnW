@@ -145,7 +145,7 @@ public class userController {
 			}
 		}
 		else {
-			mv = ControllerUtils.setupHome(new ModelAndView("home"));
+			mv = ControllerUtils.setupHome(new ModelAndView("login"));
 			mv.addObject("ERROR", "Non hai accesso a questa parte dell'app");
 		}
 		return mv;

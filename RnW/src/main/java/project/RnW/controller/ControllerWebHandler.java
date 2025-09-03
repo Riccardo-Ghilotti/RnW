@@ -19,33 +19,29 @@ public class ControllerWebHandler {
 
 	@ExceptionHandler(MongoException.class)
 	public ModelAndView handleMongoException(MongoException ex) {
-		ModelAndView mv = new ModelAndView("home");
+		ModelAndView mv = new ModelAndView("login");
 		mv.addObject("ERROR", "Errore del database");
-		mv = ControllerUtils.setupHome(mv);
 		return mv;
 	}
 	
 	@ExceptionHandler(AccountNotFoundException.class)
 	public ModelAndView handleAccountNotFoundException(AccountNotFoundException ex) {
-		ModelAndView mv = new ModelAndView("home");
+		ModelAndView mv = new ModelAndView("login");
 		mv.addObject("ERROR", "Impossibile trovare l'account");
-		mv = ControllerUtils.setupHome(mv);
 		return mv;
 	}
 	
 	@ExceptionHandler(NoSuchElementException.class)
 	public ModelAndView handleNoSuchElementException(NoSuchElementException ex) {
-		ModelAndView mv = new ModelAndView("home");
+		ModelAndView mv = new ModelAndView("login");
 		mv.addObject("ERROR", "Impossibile trovare il testo");
-		mv = ControllerUtils.setupHome(mv);
 		return mv;
 	}
 	
 	@ExceptionHandler(InvalidIdException.class)
 	public ModelAndView handleArgumentException(InvalidIdException ex){
-		ModelAndView mv = new ModelAndView("home");
+		ModelAndView mv = new ModelAndView("login");
 		mv.addObject("ERROR", "La richiesta non è valida, id non idonei");
-		mv = ControllerUtils.setupHome(mv);
 		return mv;
 	}
 	

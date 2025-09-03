@@ -184,17 +184,15 @@ public class textController {
 	
 	@ExceptionHandler(AccessDeniedException.class)
 	public ModelAndView handleAccessDeniedException(AccessDeniedException ex){
-		ModelAndView mv = new ModelAndView("home");
+		ModelAndView mv = new ModelAndView("login");
 		mv.addObject("ERROR", "Non hai i permessi per effettuare questa azione");
-		mv = ControllerUtils.setupHome(mv);
 		return mv;
 	}
 	
 	@ExceptionHandler(TextNotDeletedException.class)
 	public ModelAndView handleTextNotDeletedException(TextNotDeletedException ex){
-		ModelAndView mv = new ModelAndView("home");
+		ModelAndView mv = new ModelAndView("login");
 		mv.addObject("ERROR", "Impossibile cancellare il testo");
-		mv = ControllerUtils.setupHome(mv);
 		return mv;
 	}
 	
