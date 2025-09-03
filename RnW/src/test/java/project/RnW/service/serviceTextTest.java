@@ -26,6 +26,7 @@ import project.RnW.model.Text;
 import project.RnW.model.User;
 import project.RnW.service.serviceText.ChangeVisibilityException;
 import project.RnW.service.serviceText.EmptyMacroSectionsException;
+import project.RnW.service.serviceText.ModifiedTitleException;
 import project.RnW.service.serviceText.TextNotDeletedException;
 import project.RnW.service.serviceText.TextUnsavedException;
 import project.RnW.service.serviceUser.InvalidIdException;
@@ -67,7 +68,7 @@ public class serviceTextTest {
     			IllegalArgumentException, 
     			AccountNotFoundException, 
     			TextUnsavedException, 
-    			EmptyMacroSectionsException, InvalidIdException{
+    			EmptyMacroSectionsException, InvalidIdException, ModifiedTitleException{
     	String introString = "[\"Introduction\"]";
     	String corpusString = "[\"Corpus\"]";
     	String concString = "[\"Conclusion\"]";
@@ -126,7 +127,7 @@ public class serviceTextTest {
     
     
     @Test
-    public void testSaveTextOldText() throws AccessDeniedException, AccountNotFoundException, MongoException, IllegalArgumentException, TextUnsavedException, EmptyMacroSectionsException, InvalidIdException{
+    public void testSaveTextOldText() throws AccessDeniedException, AccountNotFoundException, MongoException, IllegalArgumentException, TextUnsavedException, EmptyMacroSectionsException, InvalidIdException, ModifiedTitleException{
         String introString = "[\"Introduction\"]";
         String corpusString = "[\"Corpus\"]";
         String concString = "[\"Conclusion\"]";
@@ -152,6 +153,15 @@ public class serviceTextTest {
                     author.getId().toString());
             assertEquals(returnedId, textId.toString());
         }
+    }
+    
+    public void testSaveTextUpdateChangedTitle() {
+    	assertThrows(ModifiedTitleException.class, () -> serviceText.saveText(text.getId().toString(), 
+    																			"Different title",
+    																			"Introduction",
+																				"Corpus", 
+    																			"Conclusion", 
+    																			author.getId().toString()));
     }
     
     

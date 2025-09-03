@@ -28,7 +28,7 @@ public class serviceText {
 			String corpus, String conc, String userId) 
 					throws MongoException, IllegalArgumentException, 
 					AccessDeniedException, AccountNotFoundException, TextUnsavedException, 
-					EmptyMacroSectionsException, InvalidIdException{
+					EmptyMacroSectionsException, InvalidIdException, ModifiedTitleException{
 		ObjectMapper mapper = new ObjectMapper();
 		
 		try {
@@ -73,6 +73,8 @@ public class serviceText {
 			try {
 				User u = mapperUser.getUser(new ObjectId(userId));
 				Text t = mapperText.getText(new ObjectId(id));
+				if(!t.getTitle().equals(title))
+					throw new ModifiedTitleException("Title of an existing text cannot be changed");
 				updateText(introList, corpusList, concList, u, t);
 			}
 			catch(IllegalArgumentException e) {
@@ -180,6 +182,12 @@ public class serviceText {
 	
 	public static class TextNotDeletedException extends Exception{
 		public TextNotDeletedException(String msg) {
+			super(msg);
+		}
+	}
+	
+	public static class ModifiedTitleException extends Exception{
+		public ModifiedTitleException(String msg) {
 			super(msg);
 		}
 	}
